@@ -7,6 +7,7 @@ const nations = require('./../../Data/nationality.json')
 const languages = require('./../../Data/languages.json')
 const religiones = require('./../../Data/religions.json')
 const mstatuses = require('./../../Data/MStatus.json')
+const educationList = require('./../../Data/education.json')
 
 require('dotenv').config();
 // const redis_client = require('./../../../redis_connect');
@@ -244,6 +245,39 @@ module.exports = new (class extends controller {
                 mstatus.code = mstatuses[i].code
 
                 const response = await mstatus.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+        }
+    }
+     // *********************************     mstatus ************************************
+     async GetAllEducation(req, res) {
+        try {
+
+            let education = await this.Education.find()
+            this.response({
+                res, message: "",
+                data: education
+            });
+            
+        } catch (error) {
+            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+        }
+    }
+    async InsertEducation(req, res) {
+        try {
+
+            
+            for (var i = 0; i < educationList.length; i++) {
+                console.log(educationList[i].name)
+                let education = new this.Education();
+                education.name = educationList[i].name ;
+                education.code = educationList[i].code
+
+                const educationItem = await education.save();
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 

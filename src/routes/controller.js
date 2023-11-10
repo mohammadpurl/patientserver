@@ -8,7 +8,7 @@ const Sexuality = require('./../modeles/Sexuality')
 const Language = require('./../modeles/language')
 const Religion = require('./../modeles/religion')
 const MStatus = require('./../modeles/mstatus')
-
+const Education = require('./../modeles/education')
 
 module.exports = class{
     constructor(){
@@ -19,6 +19,7 @@ module.exports = class{
         this.Language = Language;
         this.Religion = Religion;
         this.MStatus = MStatus;
+        this.Education = Education;
     }
     validationBody(req,res){
         console.log('validationBody')

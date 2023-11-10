@@ -64,6 +64,14 @@ router.post(
     '/insertmstatus',
     controller.InsertMstatuses)
 
+router.get(
+    '/education',
+    controller.GetAllEducation)
+
+
+router.post(
+    '/inserteducation',
+    controller.InsertEducation)
 
 router.get(
     '/sexuality',
