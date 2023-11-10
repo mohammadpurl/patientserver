@@ -4,7 +4,7 @@ const _ = require("lodash");
 const jwt = require('jsonwebtoken')
 module.exports = new (class extends controller {
     async dashboard(req,res ){
-        console.log("lmp"+req);
+        
         let users = await this.User.find() 
         this.response({res, message:"",
         data:users

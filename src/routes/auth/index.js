@@ -28,5 +28,46 @@ router.post(
     controller.verifyRefreshToken,
     controller.GetAccessToken)
 
+router.get(
+    '/nationality',
+    controller.GetAllNationality)
+
+
+router.post(
+    '/insertnationbulk',
+    controller.InsertNationality)
+
+router.get(
+    '/languages',
+    controller.GetAllLanguages)
+
+
+router.post(
+    '/insertlanguages',
+    controller.InsertLanguages)
+
+router.get(
+    '/religiones',
+    controller.GetAllReligions)
+
+
+router.post(
+    '/insertreligiones',
+    controller.InsertReligion)
+
+router.get(
+    '/mstatuses',
+    controller.GetAllMStatuss)
+
+
+router.post(
+    '/insertmstatus',
+    controller.InsertMstatuses)
+
+
+router.get(
+    '/sexuality',
+    controller.GetSexuality)
+
 
 module.exports = router

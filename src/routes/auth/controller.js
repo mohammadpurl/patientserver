@@ -3,6 +3,11 @@ const _ = require("lodash");
 const bcrypt = require('bcrypt');
 
 const jwt = require('jsonwebtoken')
+const nations = require('./../../Data/nationality.json')
+const languages = require('./../../Data/languages.json')
+const religiones = require('./../../Data/religions.json')
+const mstatuses = require('./../../Data/MStatus.json')
+
 require('dotenv').config();
 // const redis_client = require('./../../../redis_connect');
 
@@ -16,14 +21,14 @@ module.exports = new (class extends controller {
             })
         }
 
-        user = new this.User(_.pick(req.body, ["name", "email", "password"]));
+        user = new this.User(_.pick(req.body, [ "email", "password"]));
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
         const response = await user.save();
         console.log(response)
         this.response({
             res, message: "the user successfully registered",
-            data: _.pick(user, ["_id", "name", "email"])
+            data: _.pick(user, ["_id",  "email"])
         });
     }
     // *********************login**********************
@@ -35,8 +40,7 @@ module.exports = new (class extends controller {
             console.log("!user")
             return this.response({ res, code: 400, message: "Invalid email or password" })
         }
-        console.log(user);
-        console.log(user)
+       
         const isvalid = await bcrypt.compare(req.body.password, user?.password);
         console.log(`isvalid ${isvalid}`)
         if (!isvalid) {
@@ -92,7 +96,6 @@ module.exports = new (class extends controller {
 
     async verifyRefreshToken(req, res, next) {
         const token = req.body.token;
-        console.log(`tokenffff:${token}`)
         if (token === null) return res.status(401).json({ status: false, message: "Invalid request." });
         try {
             const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
@@ -112,6 +115,152 @@ module.exports = new (class extends controller {
             console.log("ddddd")
             next()
 
+        } catch (error) {
+            return res.status(401).json({ status: true, message: "Your session is not valid.55", data: error });
+        }
+    }
+
+    // *********************************     Nationalities ************************************
+    async GetAllNationality(req, res) {
+        try {
+
+            let nationalities = await this.Nationality.find()
+            this.response({
+                res, message: "",
+                data: nationalities
+            });
+            
+        } catch (error) {
+            return res.status(401).json({ status: true, message: "Your session is not valid.55", data: error });
+        }
+    }
+    async InsertNationality(req, res) {
+        try {
+
+            
+            for (var i = 0; i < nations.length; i++) {
+                console.log(nations[i].name)
+                let nationality = new this.Nationality();
+                nationality.name = nations[i].name ;
+                nationality.code = nations[i].code
+
+                const response = await nationality.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+        }
+    }
+    // *********************************     Languages ************************************
+    async GetAllLanguages(req, res) {
+        try {
+
+            let languages = await this.Language.find()
+            this.response({
+                res, message: "",
+                data: languages
+            });
+            
+        } catch (error) {
+            return res.status(401).json({ status: true, message: "Your session is not valid.55", data: error });
+        }
+    }
+    async InsertLanguages(req, res) {
+        try {
+
+            
+            for (var i = 0; i < languages.length; i++) {
+                console.log(languages[i].name)
+                let language = new this.Language();
+                language.name = languages[i].name ;
+                language.code = languages[i].code
+
+                const response = await language.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+        }
+    }
+    // *********************************     religions ************************************
+    async GetAllReligions(req, res) {
+        try {
+
+            let religions = await this.Religions.find()
+            this.response({
+                res, message: "",
+                data: religions
+            });
+            
+        } catch (error) {
+            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+        }
+    }
+    async InsertReligion(req, res) {
+        try {
+
+            
+            for (var i = 0; i < religiones.length; i++) {
+                console.log(religiones[i].name)
+                let religion = new this.Religion();
+                religion.name = religiones[i].name ;
+                religion.code = religiones[i].code
+
+                const response = await religion.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+        }
+    }
+     // *********************************     mstatus ************************************
+     async GetAllMStatuss(req, res) {
+        try {
+
+            let mstatuses = await this.MStatus.find()
+            this.response({
+                res, message: "",
+                data: mstatuses
+            });
+            
+        } catch (error) {
+            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+        }
+    }
+    async InsertMstatuses(req, res) {
+        try {
+
+            
+            for (var i = 0; i < mstatuses.length; i++) {
+                console.log(mstatuses[i].name)
+                let mstatus = new this.MStatus();
+                mstatus.name = mstatuses[i].name ;
+                mstatus.code = mstatuses[i].code
+
+                const response = await mstatus.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+        }
+    }
+    // *********************************     GetSexuality ************************************
+    async GetSexuality(req, res) {
+        try {
+
+            let sexuality = await this.Sexuality.find()
+            this.response({
+                res, message: "",
+                data: sexuality
+            });
         } catch (error) {
             return res.status(401).json({ status: true, message: "Your session is not valid.55", data: error });
         }
