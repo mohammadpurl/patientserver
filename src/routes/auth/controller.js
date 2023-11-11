@@ -8,6 +8,8 @@ const languages = require('./../../Data/languages.json')
 const religiones = require('./../../Data/religions.json')
 const mstatuses = require('./../../Data/MStatus.json')
 const educationList = require('./../../Data/education.json')
+const sexualities = require('./../../Data/sexualities.json')
+const Countries = require('./../../Data/country.json')
 
 require('dotenv').config();
 // const redis_client = require('./../../../redis_connect');
@@ -132,7 +134,7 @@ module.exports = new (class extends controller {
             });
             
         } catch (error) {
-            return res.status(401).json({ status: true, message: "Your session is not valid.55", data: error });
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
     async InsertNationality(req, res) {
@@ -151,7 +153,7 @@ module.exports = new (class extends controller {
 
         } catch (error) {
             console.log(error)
-            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
     // *********************************     Languages ************************************
@@ -165,7 +167,7 @@ module.exports = new (class extends controller {
             });
             
         } catch (error) {
-            return res.status(401).json({ status: true, message: "Your session is not valid.55", data: error });
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
     async InsertLanguages(req, res) {
@@ -184,21 +186,23 @@ module.exports = new (class extends controller {
 
         } catch (error) {
             console.log(error)
-            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
     // *********************************     religions ************************************
     async GetAllReligions(req, res) {
         try {
 
-            let religions = await this.Religions.find()
+            let religions = await this.Religion.find()
+
             this.response({
                 res, message: "",
                 data: religions
             });
             
         } catch (error) {
-            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
     async InsertReligion(req, res) {
@@ -217,7 +221,7 @@ module.exports = new (class extends controller {
 
         } catch (error) {
             console.log(error)
-            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
      // *********************************     mstatus ************************************
@@ -231,7 +235,7 @@ module.exports = new (class extends controller {
             });
             
         } catch (error) {
-            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
     async InsertMstatuses(req, res) {
@@ -250,7 +254,7 @@ module.exports = new (class extends controller {
 
         } catch (error) {
             console.log(error)
-            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
      // *********************************     mstatus ************************************
@@ -264,7 +268,7 @@ module.exports = new (class extends controller {
             });
             
         } catch (error) {
-            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
     async InsertEducation(req, res) {
@@ -283,7 +287,7 @@ module.exports = new (class extends controller {
 
         } catch (error) {
             console.log(error)
-            return res.status(401).json({ status: true, message: "Your session is not valid.", data: error });
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
     // *********************************     GetSexuality ************************************
@@ -296,9 +300,61 @@ module.exports = new (class extends controller {
                 data: sexuality
             });
         } catch (error) {
-            return res.status(401).json({ status: true, message: "Your session is not valid.55", data: error });
+            return res.status(500).json({ status: true, message: "Ysomething went wrong", data: error });
         }
     }
 
+    async InsertSexuality(req, res) {
+        try {
+
+            
+            for (var i = 0; i < sexualities.length; i++) {
+                console.log(sexualities[i].name)
+                let sex = new this.Sexualities();
+                sex.name = sexualities[i].name ;
+                sex.code = sexualities[i].code
+
+                const educationItem = await sex.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // *********************************     country ************************************
+    async GetAllCountries(req, res) {
+        try {
+
+            let countries = await this.Country.find()
+            this.response({
+                res, message: "",
+                data: countries
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertCountries(req, res) {
+        try {
+
+            
+            for (var i = 0; i < Countries.length; i++) {
+                
+                let country = new this.Country();
+                country.name = Countries[i].name ;
+                country.code = Countries[i].code
+
+                const countryItem = await country.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
 
 })();

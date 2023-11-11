@@ -70,12 +70,20 @@ router.get(
 
 
 router.post(
-    '/inserteducation',
-    controller.InsertEducation)
+    '/insertsexuality',
+    controller.InsertSexuality)
 
 router.get(
     '/sexuality',
     controller.GetSexuality)
 
+
+    router.post(
+        '/insertcountries',
+        controller.InsertCountries)
+    
+    router.get(
+        '/country',
+        controller.GetAllCountries)
 
 module.exports = router

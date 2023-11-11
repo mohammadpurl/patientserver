@@ -1,3 +1,4 @@
+
 const express = require('express');
 
 const app = express();
@@ -10,17 +11,9 @@ dotenv.config();
 
 const router = require('./src/routes')
 
-app.use(express.json());
-app.use(express.urlencoded({extended:true}));
-app.use(express.static('public'));
-
-mongoose
-    .connect("mongodb+srv://mohammadpourl:SE8LlSZ55zEy7dzH@cluster0.7tutmup.mongodb.net/patient")
-    
-    .then(() => console.log("connected to mongodb"))
-    .catch(() => console.log("could not connect"));
-
-
+require('./startup/config')(app,express);
+require('./startup/db')();
+require('./startup/loginng')();
 app.use('/api', router);
 
    

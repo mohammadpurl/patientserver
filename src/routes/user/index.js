@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('./controller');
-// const validator = require('./validator')
+const validator = require('./validator')
 
 
-router.get(
-    '/', 
-  
-    controller.dashboard
+router.post(
+    '/patientregister', 
+    // validator.paRegisterValidation(),
+    // controller.validate,
+    controller.patientRegister
     
     
     )
