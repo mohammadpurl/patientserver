@@ -21,9 +21,9 @@ module.exports = new (class extends controller {
             // const sexId =this.Sexuality.findOne({code:req.body.sexuality});   
             // const mStatus =this.Language.findOne({code:req.body.mStatus});   
             // const userId = this.User.findOne({email:req.body.email})
-
+            console.log("patientRegister")
             let patient = new this.Patient(_.pick(req.body, [
-                "user",
+                "User",
                 "firstName",
                 "lastName",
                 "title",
@@ -45,8 +45,31 @@ module.exports = new (class extends controller {
 
             const response = await patient.save();
             const fullName = `${patient.firstName} ${patient.lastName}`;
-            const BMI = patient.weigth / Math.pow(patient,2)
-            const respondePatient = { ...patient, fullName, BMI }
+            const BMI = patient.weigth / Math.pow(patient.height,2);
+            console.log("BMI"+patient.weigth)
+            console.log(Math.pow(patient.height,2))
+            console.log(req.body);
+            const patientData =_.pick(req.body, [
+                "user",
+                "firstName",
+                "lastName",
+                "title",
+                "height",
+                "weigth",
+                "mobileNumber",
+                "addreess",
+                "hoursWorked",
+                "Religion",
+                "Nationality",
+                "Sexuality",
+                "MStatus",
+                "Language",
+                "Education",
+                "currentOccupatio",
+                "birthDate",
+
+            ]);
+            const respondePatient = { ...req.body, fullName, BMI }
             this.response({
                 res, message: "the user successfully registered",
                 data:respondePatient
