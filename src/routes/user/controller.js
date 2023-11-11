@@ -22,8 +22,8 @@ module.exports = new (class extends controller {
             // const mStatus =this.Language.findOne({code:req.body.mStatus});   
             // const userId = this.User.findOne({email:req.body.email})
 
-            let patient = new this.User(_.pick(req.body, [
-                // "user",
+            let patient = new this.Patient(_.pick(req.body, [
+                "user",
                 "firstName",
                 "lastName",
                 "title",
