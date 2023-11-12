@@ -78,12 +78,28 @@ router.get(
     controller.GetSexuality)
 
 
-    router.post(
-        '/insertcountries',
-        controller.InsertCountries)
-    
-    router.get(
-        '/country',
-        controller.GetAllCountries)
+router.post(
+    '/insertcountries',
+    controller.InsertCountries)
+
+router.get(
+    '/country',
+    controller.GetAllCountries)
+
+router.post(
+    '/inserttitle',
+    controller.InsertTitle)
+
+router.get(
+    '/title',
+    controller.GetAllTitles)
+
+router.post(
+    '/insertmedication',
+    controller.InsertMedication)
+
+router.get(
+    '/medication',
+    controller.GetAllMedicationes)
 
 module.exports = router

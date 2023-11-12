@@ -14,6 +14,10 @@ const Education = require('./../modeles/education')
 const Sexualities = require('./../modeles/Sexuality')
 const Country = require('./../modeles/country')
 const Patient = require('./../modeles/patient')
+const Title = require('./../modeles/title');
+const Medication = require('./../modeles/medication');
+
+
 
 module.exports = class{
     constructor(){
@@ -29,6 +33,8 @@ module.exports = class{
         this.Sexualities = Sexualities;
         this.Country = Country;
         this.Patient = Patient;
+        this.Title = Title;
+        this.Medication = Medication
     }
     validationBody(req,res){
         console.log('validationBody')

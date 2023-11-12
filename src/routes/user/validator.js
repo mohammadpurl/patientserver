@@ -2,8 +2,7 @@ const { body, validationResult } = require('express-validator');
 
 
 module.exports = new class {
-    paRegisterValidation() {
-        console.log("registerValidation")
+    paRegisterValidation() {        
         return [
             body('firstName')
                 .isLength({ min: 1 })
@@ -63,16 +62,15 @@ module.exports = new class {
         ]
 
     }
-    loginValidation() {
+    hospitalValidation() {
         return [
-            body('email').isEmail().normalizeEmail().withMessage('Invalid Email').exists(),
-            body('password')
+          
+            body('name')
                 .isLength({ min: 5 })
-                .withMessage('password must be at least 5 chars long')
-                .isLength({ max: 30 })
-                .withMessage('password must be at max 30 chars long')
-                .matches(/\d/)
-                .withMessage('password must contain a number')
+                .withMessage('hospital name must be at least 2 chars long')
+                .isLength({ max: 50 })
+                .withMessage('hospital name must be at max 50 chars long')
+                
                 .exists(),
         ]
     }

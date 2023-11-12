@@ -3,6 +3,7 @@ const _ = require("lodash");
 const bcrypt = require('bcrypt');
 
 const jwt = require('jsonwebtoken')
+
 const nations = require('./../../Data/nationality.json')
 const languages = require('./../../Data/languages.json')
 const religiones = require('./../../Data/religions.json')
@@ -10,12 +11,14 @@ const mstatuses = require('./../../Data/MStatus.json')
 const educationList = require('./../../Data/education.json')
 const sexualities = require('./../../Data/sexualities.json')
 const Countries = require('./../../Data/country.json')
+const TitleList = require('./../../Data/title.json')
+const MedicationList = require('./../../Data/medication.json')
 
 require('dotenv').config();
 // const redis_client = require('./../../../redis_connect');
 
 module.exports = new (class extends controller {
-    async register(req, res) {
+    async register(req, res, next) {
 
         let user = await this.User.findOne({ email: req.body.email })
         if (user) {
@@ -29,16 +32,17 @@ module.exports = new (class extends controller {
         user.password = await bcrypt.hash(user.password, salt);
         const response = await user.save();
         console.log(response)
-        this.response({
-            res, message: "the user successfully registered",
-            data: _.pick(user, ["_id",  "email"])
-        });
+        // this.response({
+        //     res, message: "the user successfully registered",
+        //     data: _.pick(user, ["_id",  "email"])
+        // });
+        res.redirect(307,'/api/auth//login');
     }
     // *********************login**********************
-    async login(req, res) {
-        // console.log(req);
+    async login(req, res) { 
+        console.log(`login ${req}`);
         let user = await this.User.findOne({ email: req.body.email })
-        //    console.log(`user:${user}`)
+           console.log(`user:${user}`)
         if (!user) {
             console.log("!user")
             return this.response({ res, code: 400, message: "Invalid email or password" })
@@ -356,5 +360,72 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
+    // *********************************     title ************************************
+    async GetAllTitles(req, res) {
+        try {
+
+            let titles = await this.Title.find()
+            this.response({
+                res, message: "",
+                data: titles
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertTitle(req, res) {
+        try {
+
+            
+            for (var i = 0; i < TitleList.length; i++) {
+                
+                let title = new this.Title();
+                title.name = TitleList[i].name ;
+                title.code = TitleList[i].code
+
+                const titleItem = await title.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // *********************************  Medication ************************************
+    async GetAllMedicationes(req, res) {
+        try {
+
+            let medications = await this.Medication.find()
+            this.response({
+                res, message: "",
+                data: medications
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertMedication(req, res) {
+        try {
+
+            
+            for (var i = 0; i < MedicationList.length; i++) {
+                
+                let medication = new this.Medication();
+                medication.name = MedicationList[i].name ;
+                medication.code = MedicationList[i].code
+
+                const medicationItem = await medication.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    
 
 })();
