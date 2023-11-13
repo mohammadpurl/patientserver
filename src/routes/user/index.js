@@ -12,6 +12,14 @@ router.post(
     
     
     )
+    router.get(
+        '/userlist', 
+        // validator.paRegisterValidation(),
+        // controller.validate,
+        controller.dashboard
+        
+        
+        )
     router.post(
         '/hospitalregister', 
          validator.hospitalValidation(),
