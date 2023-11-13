@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
 
-const LanguageSchema = new mongoose.Schema({
-    name: {type: String, require: true, unique: true},
-    code: {type: Number, require: true},
+const SymptomsThirtySchema = new mongoose.Schema({
+    id: {type: Number, require: true, unique: true},
+    name: {type: String, require: true, },    
+    parentID: {type: Number, require: false},
 })
-LanguageSchema.plugin(timestamp);
-const Language = mongoose.model("Language",LanguageSchema);
-module.exports = Language;
+SymptomsThirtySchema.plugin(timestamp);
+const SymptomsThirty = mongoose.model("SymptomsThirty",SymptomsThirtySchema);
+module.exports = SymptomsThirty;

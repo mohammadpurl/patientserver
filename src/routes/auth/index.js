@@ -102,4 +102,20 @@ router.get(
     '/medication',
     controller.GetAllMedicationes)
 
+router.post(
+    '/insertlastthirty',
+    controller.InserttLastThirty)
+
+router.get(
+    '/lastthirtyitems',
+    controller.GetLastThirtyItems)
+
+router.post(
+    '/insertwomenhistory',
+    controller.InserttWomenHistory)
+
+router.get(
+    '/womenhistoryItem',
+    controller.GetWomenHistoryItems)
+
 module.exports = router

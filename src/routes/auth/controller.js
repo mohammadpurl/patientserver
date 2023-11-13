@@ -13,6 +13,8 @@ const sexualities = require('./../../Data/sexualities.json')
 const Countries = require('./../../Data/country.json')
 const TitleList = require('./../../Data/title.json')
 const MedicationList = require('./../../Data/medication.json')
+const LastThirtyList = require('./../../Data/lastThirty.json')
+const WomenHistoryList = require('./../../Data/womenHistory.json')
 
 require('dotenv').config();
 // const redis_client = require('./../../../redis_connect');
@@ -418,6 +420,73 @@ module.exports = new (class extends controller {
                 medication.code = MedicationList[i].code
 
                 const medicationItem = await medication.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // *********************************  last 30 day ************************************
+    async GetLastThirtyItems(req, res) {
+        try {
+
+            let lastthirty = await this.SymptomsThirty.find()
+            this.response({
+                res, message: "",
+                data: lastthirty
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InserttLastThirty(req, res) {
+        try {
+
+            console.log( LastThirtyList.length)
+            for (var i = 0; i < LastThirtyList.length; i++) {
+                console.log(LastThirtyList[i].name)
+                let lastThirty = new this.SymptomsThirty();
+                lastThirty.name = LastThirtyList[i].name ;
+                lastThirty.parentID = LastThirtyList[i].parentID;
+                lastThirty.id = LastThirtyList[i].id
+
+                const lastThirtyItem = await lastThirty.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // *********************************  Women History ************************************
+    async GetWomenHistoryItems(req, res) {
+        try {
+
+            let womenHistory = await this.womenHistory.find()
+            this.response({
+                res, message: "",
+                data: womenHistory
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InserttWomenHistory(req, res) {
+        try {
+
+            for (var i = 0; i < WomenHistoryList.length; i++) {
+                
+                let womenHistory = new this.womenHistory();
+                womenHistory.description = WomenHistoryList[i].description ;
+                womenHistory.code = WomenHistoryList[i].code;
+                womenHistory.type = WomenHistoryList[i].type
+
+                const womenHistoryItem = await womenHistory.save();
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 
