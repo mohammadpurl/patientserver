@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
 
 const PatientSchema = new mongoose.Schema({    
-    user: {
+    User: {
         type: mongoose.Schema.ObjectId,
         ref: 'User'
     },
