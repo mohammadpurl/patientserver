@@ -8,7 +8,7 @@ module.exports = new (class extends controller {
     async getALlPatientList(req, res) {
 
         let users = await this.Patient.find()
-                          .populate('user', 'email')
+                          .populate('User', 'email')
                           .populate('Religion','name -_id')
                           .populate('Nationality','name -_id')
                           .populate('Sexuality','name -_id')
