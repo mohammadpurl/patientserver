@@ -5,9 +5,19 @@ const _ = require("lodash");
 const jwt = require('jsonwebtoken')
 
 module.exports = new (class extends controller {
-    async dashboard(req, res) {
+    async getALlPatientList(req, res) {
 
-        let users = await this.User.find()
+        let users = await this.Patient.find()
+                          .populate('user', 'email')
+                          .populate('Religion','name -_id')
+                          .populate('Nationality','name -_id')
+                          .populate('Sexuality','name -_id')
+                          .populate('MStatus','name -_id')
+                          .populate('Language','name -_id')
+                          .populate('Education','name -_id')
+
+
+
         this.response({
             res, message: "",
             data: users
@@ -95,7 +105,10 @@ module.exports = new (class extends controller {
     }
     // *********************login**********************
     async profile(req, res) {
-        this.response({ res, data: _.pick(req.user, ["name", "email"]) })
+        console.log(`user:${req.user}`)
+        const userData =_.pick(req.user, ["isadmin","", "email"]);
+        console.log(`userData:${JSON.stringify(userData)}`)
+        this.response({ res, data:userData  })
     }
 
 

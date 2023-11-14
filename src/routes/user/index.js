@@ -16,7 +16,7 @@ router.post(
         '/userlist', 
         // validator.paRegisterValidation(),
         // controller.validate,
-        controller.dashboard
+        controller.getALlPatientList
         
         
         )
