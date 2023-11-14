@@ -106,10 +106,15 @@ module.exports = new (class extends controller {
     // *********************login**********************
     async profile(req, res) {
         console.log(`req.user${req.user}`)
-        let user = await this.Patient.findOne({User:req.user._id})
+        let userInfo = await this.Patient.findOne({User:req.user._id})
         .populate('User', 'email')
-        const userData =_.pick(user, ["isadmin","firstName", "lastName", "User.email"]);
-        console.log(`userData:${JSON.stringify(user)}`)
+        const userData ={       
+            "email": userInfo?.User?.email,
+            "firstName": userInfo?.firstName,
+            "lastName": userInfo?.lastName
+        }
+        
+        console.log(`userData:${JSON.stringify(userInfo)}`)
         this.response({ res, data:userData  })
     }
 
