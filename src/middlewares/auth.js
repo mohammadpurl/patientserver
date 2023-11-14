@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 
 async function isLoggined(req, res, next) {
     // const token = req.header("X-auth-token")
+    console.log("isLoggined")
     const token = req.headers.authorization.split(' ')[1];
     if (!token) res.status(401).send('access denied')
     try {

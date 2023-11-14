@@ -34,7 +34,7 @@ module.exports = new (class extends controller {
             // const userId = this.User.findOne({email:req.body.email})
             console.log("patientRegister")
             let patient = new this.Patient(_.pick(req.body, [
-                "User",
+                "user",
                 "firstName",
                 "lastName",
                 "title",
@@ -43,12 +43,12 @@ module.exports = new (class extends controller {
                 "mobileNumber",
                 "addreess",
                 "hoursWorked",
-                "Religion",
-                "Nationality",
-                "Sexuality",
-                "MStatus",
-                "Language",
-                "Education",
+                "religion",
+                "nationality",
+                "sexuality",
+                "mStatus",
+                "language",
+                "education",
                 "currentOccupatio",
                 "birthDate",
 
@@ -60,7 +60,7 @@ module.exports = new (class extends controller {
             console.log("BMI"+patient.weigth)
             console.log(Math.pow(patient.height,2))
             console.log(req.body);
-            const age = _calculateAge(patient.birthDate);
+            const age = this._calculateAge(patient.birthDate);
             
             const respondePatient = { ...req.body, fullName, BMI, age }
             this.response({
@@ -106,10 +106,10 @@ module.exports = new (class extends controller {
     // *********************login**********************
     async profile(req, res) {
         console.log(`req.user${req.user}`)
-        let userInfo = await this.Patient.findOne({User:req.user._id})
-        .populate('User', 'email')
+        let userInfo = await this.Patient.findOne({user:req.user._id})
+        .populate('user', 'email')
         const userData ={       
-            "email": userInfo?.User?.email,
+            "email": userInfo?.user?.email,
             "firstName": userInfo?.firstName,
             "lastName": userInfo?.lastName
         }
@@ -122,7 +122,8 @@ module.exports = new (class extends controller {
 
 
      _calculateAge(birthday) { // birthday is a date
-        var ageDifMs = Date.now() - birthday.getTime();
+        var ageDifMs = Date.now() - birthday?.getTime();
+        console.log(`ageDifMs${ageDifMs}`);
         var ageDate = new Date(ageDifMs); // miliseconds from epoch
         return Math.abs(ageDate.getUTCFullYear() - 1970);
     }

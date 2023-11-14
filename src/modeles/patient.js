@@ -2,16 +2,16 @@ const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
 
 const PatientSchema = new mongoose.Schema({    
-    User: {
+    user: {
         type: mongoose.Schema.ObjectId,
         ref: 'User'
     },
-    Religion:{ type: mongoose.Schema.ObjectId, ref: "Religion"},
-    Nationality:{ type: mongoose.Schema.ObjectId, ref: "Nationality"},
-    Sexuality:{ type: mongoose.Schema.ObjectId, ref: "Sexuality"},
-    MStatus:{ type: mongoose.Schema.ObjectId, ref: "MStatus"},
-    Language: [{ type: mongoose.Schema.ObjectId, ref: "Language"}],
-    Education:{ type: mongoose.Schema.ObjectId, ref: "Education"},
+    religioneligion:{ type: mongoose.Schema.ObjectId, ref: "Religion"},
+    nationality:{ type: mongoose.Schema.ObjectId, ref: "Nationality"},
+    sexuality:{ type: mongoose.Schema.ObjectId, ref: "Sexuality"},
+    mStatus:{ type: mongoose.Schema.ObjectId, ref: "MStatus"},
+    language: [{ type: mongoose.Schema.ObjectId, ref: "Language"}],
+    education:{ type: mongoose.Schema.ObjectId, ref: "Education"},
 
     firstName:{type: String},
     lastName:{type: String},

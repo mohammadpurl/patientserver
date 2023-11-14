@@ -125,7 +125,7 @@ module.exports = new (class extends controller {
             next()
 
         } catch (error) {
-            return res.status(401).json({ status: true, message: "Your session is not valid.55", data: error });
+            return res.status(401).json({ status: fase, message: "Your session is not valid.Relogin now", data: error });
         }
     }
 
