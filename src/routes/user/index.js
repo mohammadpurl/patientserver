@@ -35,6 +35,13 @@ router.get(
     controller.profile
     
     )
-
+    router.get(
+        '/patientdetail/:id', 
+        // validator.loginValidation(),
+        // controller.validate,
+        controller.patientDetail
+        
+        )
+    
 
 module.exports = router

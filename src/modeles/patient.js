@@ -6,7 +6,7 @@ const PatientSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'User'
     },
-    religioneligion:{ type: mongoose.Schema.ObjectId, ref: "Religion"},
+    religion:{ type: mongoose.Schema.ObjectId, ref: "Religion"},
     nationality:{ type: mongoose.Schema.ObjectId, ref: "Nationality"},
     sexuality:{ type: mongoose.Schema.ObjectId, ref: "Sexuality"},
     mStatus:{ type: mongoose.Schema.ObjectId, ref: "MStatus"},

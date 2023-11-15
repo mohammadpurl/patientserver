@@ -6,21 +6,22 @@ const jwt = require('jsonwebtoken')
 
 module.exports = new (class extends controller {
     async getALlPatientList(req, res) {
+        console.log("getALlPatientList")
+        let userInfo = await this.Patient.find()
+            .populate('user', 'email')
+            .populate('religion', 'name -_id')
+            .populate('nationality', 'name -_id')
+            .populate('sexuality', 'name -_id')
+            .populate('mStatus', 'name -_id')
+            .populate('language', 'name -_id')
+            .populate('education', 'name -_id')
 
-        let users = await this.Patient.find()
-                          .populate('User', 'email')
-                          .populate('Religion','name -_id')
-                          .populate('Nationality','name -_id')
-                          .populate('Sexuality','name -_id')
-                          .populate('MStatus','name -_id')
-                          .populate('Language','name -_id')
-                          .populate('Education','name -_id')
-
+        const processedObjects = userInfo?.map(this.processObject);
 
 
         this.response({
             res, message: "",
-            data: users
+            data: processedObjects
         });
     }
     // *********************Register patients**********************
@@ -56,18 +57,18 @@ module.exports = new (class extends controller {
 
             const response = await patient.save();
             const fullName = `${patient.firstName} ${patient.lastName}`;
-            const BMI = patient.weigth / Math.pow(patient.height,2);
-            console.log("BMI"+patient.weigth)
-            console.log(Math.pow(patient.height,2))
+            const BMI = patient.weigth / Math.pow(patient.height, 2);
+            console.log("BMI" + patient.weigth)
+            console.log(Math.pow(patient.height, 2))
             console.log(req.body);
             const age = this._calculateAge(patient.birthDate);
-            
+
             const respondePatient = { ...req.body, fullName, BMI, age }
             this.response({
                 res, message: "the user successfully registered",
-                data:respondePatient
+                data: respondePatient
                 //  _.pick(response, ["_id"]
-                 
+
             });
         } catch (error) {
 
@@ -79,22 +80,22 @@ module.exports = new (class extends controller {
     // *********************Register Hospital**********************
     async hospitalRegister(req, res) {
         try {
-            
+
             console.log("hospital Register")
             let hospital = new Hospital(_.pick(req.body, [
                 "Country",
                 "name"
-                
+
 
             ]));
 
             const response = await hospital.save();
-           
-            
+
+
             this.response({
                 res, message: "the hospital successfully registered",
                 data: _.pick(response, ["_id"])
-                 
+
             });
         } catch (error) {
 
@@ -103,29 +104,72 @@ module.exports = new (class extends controller {
         }
 
     }
-    // *********************login**********************
+    // *********************prifile**********************
     async profile(req, res) {
         console.log(`req.user${req.user}`)
-        let userInfo = await this.Patient.findOne({user:req.user._id})
-        .populate('user', 'email')
-        const userData ={       
+        let userInfo = await this.Patient.findOne({ user: req.user._id })
+            .populate('user', 'email')
+        const userData = {
             "email": userInfo?.user?.email,
             "firstName": userInfo?.firstName,
             "lastName": userInfo?.lastName
         }
-        
+
         console.log(`userData:${JSON.stringify(userInfo)}`)
-        this.response({ res, data:userData  })
+        this.response({ res, data: userData })
+    }
+
+    // *********************patientDeatil**********************
+    async patientDetail(req, res) {
+        console.log(`req.user${req.user}`)
+        const userId = req.params.id;
+        let userInfo = await this.Patient.findOne({ _id: userId })
+            .populate('user', 'email')            
+            .populate('religion', 'name -_id')
+            .populate('nationality', 'name -_id')
+            .populate('sexuality', 'name -_id')
+            .populate('mStatus', 'name -_id')
+            .populate('language', 'name -_id')
+            .populate('education', 'name -_id')
+
+        const userData = this.processObject(userInfo);
+        console.log(`userData ${JSON.stringify(userData) }`)
+        this.response({
+            res, message: "",
+            data: userData
+        });
+
     }
 
 
-
-
-     _calculateAge(birthday) { // birthday is a date
+    _calculateAge(birthday) { // birthday is a date
         var ageDifMs = Date.now() - birthday?.getTime();
         console.log(`ageDifMs${ageDifMs}`);
         var ageDate = new Date(ageDifMs); // miliseconds from epoch
         return Math.abs(ageDate.getUTCFullYear() - 1970);
     }
+    processObject(userInfo) {
+        const userData = {
+            "id": userInfo?._id,
+            "email": userInfo?.user?.email,
+            "firstName": userInfo?.firstName,
+            "lastName": userInfo?.lastName,
+            "title": userInfo?.title,
+            "height": userInfo?.height,
+            "weigth": userInfo?.weigth,
+            "mobileNumber": userInfo?.mobileNumber,
+            "addreess": userInfo?.addreess,
+            "hoursWorked": userInfo?.hoursWorked,
+            "religion": userInfo?.religion?.name,
+            "nationality": userInfo?.nationality?.name,
+            "sexuality": userInfo?.sexuality?.name,
+            "mStatus": userInfo?.mStatus?.name,
+            "language": userInfo?.language?.name,
+            "education": userInfo?.education?.name,
+            "currentOccupatio": userInfo?.currentOccupatio,
+            "birthDate": userInfo?.birthDate
 
+        }
+        return userData
+    }
 })();
