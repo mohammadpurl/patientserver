@@ -132,8 +132,8 @@ module.exports = new (class extends controller {
             .populate('language', 'name -_id')
             .populate('education', 'name -_id')
 
-        const userData = this.processObject(userInfo);
-        console.log(`userData ${JSON.stringify(userData) }`)
+        // const userData = this.processObject(userInfo);
+        console.log(`userData ${JSON.stringify(userInfo) }`)
         this.response({
             res, message: "",
             data: userData
@@ -141,7 +141,28 @@ module.exports = new (class extends controller {
 
     }
 
-
+    //******************************************************************** */
+    async patientUpdate(req,res){
+        try {
+            const isAdmin = req.userData.isAdmin
+             
+            const userId = req.params.id;
+            const updateParams = req.body; 
+        
+            // Find the document by ID and update it with the new parameters
+            const updatedDocument = await this.Pationt.findByIdAndUpdate(userId, updateParams, { new: true });
+        
+            if (!updatedDocument) {
+              return res.status(404).json({ message: 'Document not found' });
+            }
+        
+            this.response({ res, data: updatedDocument })
+            
+          } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+          }
+    }
     _calculateAge(birthday) { // birthday is a date
         var ageDifMs = Date.now() - birthday?.getTime();
         console.log(`ageDifMs${ageDifMs}`);
