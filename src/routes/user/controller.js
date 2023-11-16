@@ -39,7 +39,7 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
-
+    
     // *********************Register patients**********************
     async patientRegister(req, res) {
         try {
@@ -303,4 +303,33 @@ module.exports = new (class extends controller {
             // return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
+    // ************************
+    async InsertMedicationToPatient(req, res) {
+        try {
+            console.log("InsertMedicationToPatient")
+            const medicationList = req.body?.medicationList;
+            console.log(`medicationList${JSON.stringify(medicationList)}`)
+            
+            const patientId = req.user?._id
+            console.log(`patientId${patientId}`)
+            for (var i = 0; i < medicationList.length; i++) {
+                console.log("medication"+medicationList[i].howManydays)
+                let medicationToPatient = new this.MedicationToPatient();
+                medicationToPatient.drugStrength = medicationList[i].drugStrength ;
+                medicationToPatient.dosePerDay = medicationList[i].dosePerDay;
+                medicationToPatient.patientId = patientId;
+                medicationToPatient.medicationId = medicationList[i].medicationId;
+                medicationToPatient.howManydays = medicationList[i].howManydays;
+
+                const response = await medicationToPatient.save();
+                console.log(`medicationList response${JSON.stringify(response)}`)
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
 })();

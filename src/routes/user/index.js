@@ -71,6 +71,13 @@ router.post(
     controller.guardianToPatient
 
 )
+router.post(
+    '/savemedication',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.InsertMedicationToPatient
+
+)
 
 
 
