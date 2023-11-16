@@ -152,7 +152,7 @@ module.exports = new (class extends controller {
         console.log(`userData ${JSON.stringify(userInfo)}`)
         this.response({
             res, message: "",
-            data: userData
+            data: userInfo
         });
 
     }
@@ -303,7 +303,7 @@ module.exports = new (class extends controller {
             // return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
-    // ************************
+    // ************************InsertMedicationToPatient****************************
     async InsertMedicationToPatient(req, res) {
         try {
             console.log("InsertMedicationToPatient")
@@ -323,6 +323,32 @@ module.exports = new (class extends controller {
 
                 const response = await medicationToPatient.save();
                 console.log(`medicationList response${JSON.stringify(response)}`)
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // ************************InsertMedicationToPatient****************************
+    async InsertLastThirtyToPatient(req, res) {
+        try {
+            console.log("InsertLastThirtyToPatient")
+            const lastThirtyList = req.body?.lastThirtyList;
+            console.log(`lastThirtyList${JSON.stringify(lastThirtyList)}`)
+            
+            const patientId = req.user?._id
+            console.log(`patientId${patientId}`)
+            for (var i = 0; i < lastThirtyList.length; i++) {
+                console.log("lastThirty"+lastThirtyList[i].lastThirtyItem)
+                let lastThirtyToPatient = new this.LastThirtyToPatient();
+                lastThirtyToPatient.lastThirtyItem = lastThirtyList[i].lastThirtyItem ;
+                lastThirtyToPatient.value = lastThirtyList[i].value;
+                lastThirtyToPatient.patientId = patientId;
+
+                const response = await lastThirtyToPatient.save();
+                console.log(`lastThirtyList response${JSON.stringify(response)}`)
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 

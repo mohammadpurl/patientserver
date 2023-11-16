@@ -78,6 +78,15 @@ router.post(
     controller.InsertMedicationToPatient
 
 )
+router.post(
+    '/savelastthirty',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.InsertLastThirtyToPatient
+
+)
+
+
 
 
 
