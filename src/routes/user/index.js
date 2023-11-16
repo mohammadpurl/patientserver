@@ -12,6 +12,14 @@ router.post(
 
 
 )
+router.post(
+    '/registerdg',
+    // validator.paRegisterValidation(),
+    // controller.validate,
+    controller.registerDoctorOrGuardian
+
+
+)
 router.get(
     '/userlist',
     // validator.paRegisterValidation(),
@@ -49,6 +57,22 @@ router.get(
     controller.patientUpdate
 
 )
+router.get(
+    '/alldoctorlist',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getALlDoctors
+
+)
+router.post(
+    '/guardiantopatient',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.guardianToPatient
+
+)
+
+
 
 
 module.exports = router

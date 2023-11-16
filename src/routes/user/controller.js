@@ -1,8 +1,8 @@
 const controller = require('./../controller');
 const Hospital = require('./../../modeles/hospital');
 const _ = require("lodash");
-// const math = require('mathjs');
-const jwt = require('jsonwebtoken')
+const bcrypt = require('bcrypt');
+const GuardianToPatient = require('./../../modeles/guardianTopatient');
 
 module.exports = new (class extends controller {
     async getALlPatientList(req, res) {
@@ -24,6 +24,22 @@ module.exports = new (class extends controller {
             data: processedObjects
         });
     }
+    // *********************Get all Doctors**********************
+    async getALlDoctors(req, res) {
+        try {
+            console.log("getALlDoctorsList")
+            let userInfo = await this.User.find({ isDoctor: true })
+            console.log(`userInfo:${userInfo}`)
+            this.response({
+                res, message: "",
+                data: userInfo
+            });
+        } catch (error) {   
+            console.log(error)
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
+    }
+
     // *********************Register patients**********************
     async patientRegister(req, res) {
         try {
@@ -124,7 +140,7 @@ module.exports = new (class extends controller {
         console.log(`req.user${req.user}`)
         const userId = req.params.id;
         let userInfo = await this.Patient.findOne({ _id: userId })
-            .populate('user', 'email')            
+            .populate('user', 'email')
             .populate('religion', 'name -_id')
             .populate('nationality', 'name -_id')
             .populate('sexuality', 'name -_id')
@@ -133,7 +149,7 @@ module.exports = new (class extends controller {
             .populate('education', 'name -_id')
 
         // const userData = this.processObject(userInfo);
-        console.log(`userData ${JSON.stringify(userInfo) }`)
+        console.log(`userData ${JSON.stringify(userInfo)}`)
         this.response({
             res, message: "",
             data: userData
@@ -141,34 +157,39 @@ module.exports = new (class extends controller {
 
     }
 
-    //******************************************************************** */
-    async patientUpdate(req,res){
+    //********************************patientUpdate************************************ */
+    async patientUpdate(req, res) {
         try {
             const isAdmin = req.userData.isAdmin
-             
-            const userId = req.params.id;
-            const updateParams = req.body; 
-        
-            // Find the document by ID and update it with the new parameters
-            const updatedDocument = await this.Pationt.findByIdAndUpdate(userId, updateParams, { new: true });
-        
-            if (!updatedDocument) {
-              return res.status(404).json({ message: 'Document not found' });
+            const userId = req.userData._id
+            const id = req.params.id;
+            if (isAdmin || id === userId) {
+                const updateParams = req.body;
+
+                // Find the document by ID and update it with the new parameters
+                const updatedDocument = await this.Pationt.findByIdAndUpdate(id, updateParams, { new: true });
+
+                if (!updatedDocument) {
+                    return res.status(404).json({ message: 'Document not found' });
+                }
+
+                this.response({ res, data: updatedDocument })
             }
-        
-            this.response({ res, data: updatedDocument })
-            
-          } catch (error) {
+
+
+        } catch (error) {
             console.log(error)
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
-          }
+        }
     }
+    // *******************************************calculate age
     _calculateAge(birthday) { // birthday is a date
         var ageDifMs = Date.now() - birthday?.getTime();
         console.log(`ageDifMs${ageDifMs}`);
         var ageDate = new Date(ageDifMs); // miliseconds from epoch
         return Math.abs(ageDate.getUTCFullYear() - 1970);
     }
+    // ****************************************get user info
     processObject(userInfo) {
         const userData = {
             "id": userInfo?._id,
@@ -192,5 +213,94 @@ module.exports = new (class extends controller {
 
         }
         return userData
+    }
+    // ************************************insert Doctor or Guardian
+    async registerDoctorOrGuardian(req, res) {
+
+        try {
+            console.log("registerDoctorOrGuardian")
+            const gOrD = new this.User(_.pick(req.body, ["isDoctor"]));
+            let id = await this.saveGuardianorDoctorInDB(req, res);
+            const isDoctor = gOrD.isDoctor
+            console.log(`isDoctor${isDoctor}`)
+            if (id === 1) {
+                this.response({
+                    res, message: "the user successfully registered",
+                    data: _.pick(req.body, ["email"])
+                });
+            }
+            if (isDoctor) {
+                this.response({
+                    res, message: " successfully registered",
+                    data: id
+                });
+            }
+            else {
+
+                req.body.guardianId = id;
+
+                const gToP = await this.guardianToPatient(req, id)
+
+                console.log(`isDoctor == false `)
+                if (gToP === -1) {
+                    return res.status(500).json({ status: false, message: "something went wrong", data: error });
+
+                }
+                else {
+                    this.response({
+                        res, message: " successfully gto registered",
+                        data: id
+                    });
+                }
+
+
+            }
+
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
+
+    }
+    //********************************patientUpdate************************************ */
+    async saveGuardianorDoctorInDB(req) {
+        try {
+            console.log("saveGuardianorDoctorInDB")
+            let user = await this.User.findOne({ email: req.body.email })
+            if (user) {
+                return 1
+            }
+            const creatorId = req.userData._id
+            user = new this.User(_.pick(req.body, ["email", "password", "isDoctor", "firstName", "lastName", "title", "mobileNumber"]));
+            user.creatoreId = creatorId;
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+            const response = await user.save();
+            console.log(`saveGuardianorDoctorInDB${response}`)
+            const id = _.pick(user, ["_id"])
+            console.log("finish saveGuardianorDoctorInDB")
+            return id
+        } catch (error) {
+            console.log(`saveGuardianorDoctorInDB LMP:${error}`)
+            // return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
+    }
+    // ************************************Guardian to Patient
+    async guardianToPatient(req, guardianId) {
+
+        try {
+            console.log('guardianToPatient')
+            let guardianToPatient = new GuardianToPatient();
+            guardianToPatient.guardian = guardianId;
+            guardianToPatient.patient = req.userData._id
+
+            const response = await guardianToPatient.save();
+            return response._id
+        } catch (error) {
+            console.log(` lmp    guardianToPatient ${error}`)
+            return -1
+            // return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
     }
 })();

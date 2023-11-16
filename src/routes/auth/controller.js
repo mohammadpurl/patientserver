@@ -29,7 +29,7 @@ module.exports = new (class extends controller {
             })
         }
 
-        user = new this.User(_.pick(req.body, [ "email", "password"]));
+        user = new this.User(_.pick(req.body, [ "email", "password", "isDoctor"]));
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
         const response = await user.save();

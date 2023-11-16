@@ -62,6 +62,42 @@ module.exports = new class {
         ]
 
     }
+    dgRegisterValidation() {        
+        return [
+            body('firstName')
+                .isLength({ min: 3 })
+                .withMessage('firstName must be at least 3 chars long')
+                .isLength({ max: 30 })
+                .withMessage(' firstName must be less than 30 chars long')
+                .exists()
+                .withMessage('firstName is required')
+                .trim()
+                .matches(/^[A-Za-z0-9\_]+$/)
+                .withMessage('firstName must be alphanumeric only')
+                .escape(),
+            body('lastName')
+                .isLength({ min: 3 })
+                .withMessage('lastName must be at least 3 chars long')
+                .isLength({ max: 50 })
+                .withMessage(' lastName must be less than 50 chars long')
+                .exists()
+                .withMessage('lastName is required')
+                .trim()
+                .matches(/^[A-Za-z0-9\_]+$/)
+                .withMessage('lastName must be alphanumeric only')
+                .escape(),
+            body('email').isEmail().normalizeEmail().withMessage('Invalid Email').exists(),
+            body('mobileNumber')                
+                .exists()
+                .withMessage('mobileNumber is required')
+                .trim()
+                .matches(/^[0-9\_]+$/)
+                .withMessage('mobileNumber must be Numeric only')
+                .escape()
+          
+        ]
+
+    }
     hospitalValidation() {
         return [
           
