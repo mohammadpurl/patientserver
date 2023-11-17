@@ -1,8 +1,6 @@
 const controller = require('./../controller');
 const _ = require("lodash");
-const bcrypt = require('bcrypt');
 
-const jwt = require('jsonwebtoken')
 
 const nations = require('./../../Data/nationality.json')
 const languages = require('./../../Data/languages.json')
