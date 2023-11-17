@@ -202,16 +202,16 @@ module.exports = new (class extends controller {
         console.log(`processObject userData ${JSON.stringify(userData)}`)
         if (type && type == "show") {
             const languages = []
-            userInfo?.languages.map((language) => {
+            languages.map((language) => {
                 console.log(`processObject${language.name}`)
                 languages.push(language.name)
             })
 
-            userData.religion = userInfo?.religion?.name;
-            userData.nationality = userInfo?.nationality?.name;
-            userData.sexuality = userInfo?.sexuality?.name;
-            userData.mStatus = userInfo?.mStatus?.name;
-            userData.education = userInfo?.education?.name;
+            userData.religion = religion?.name;
+            userData.nationality = nationality?.name;
+            userData.sexuality = sexuality?.name;
+            userData.mStatus = mStatus?.name;
+            userData.education = education?.name;
             userData.languages = languages
         }
         return userData
