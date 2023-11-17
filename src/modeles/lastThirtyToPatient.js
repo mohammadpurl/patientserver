@@ -4,7 +4,7 @@ const timestamp = require('mongoose-timestamp');
 const LastThirtyToPatientSchema = new mongoose.Schema({
     value: {type: Boolean, require: true},
     patientId: { type: mongoose.Schema.ObjectId, ref: "Patient"},  
-    lastThirtyItem: { type: mongoose.Schema.ObjectId, ref: "SymptomsThirty"},
+    lastThirtyId: { type: mongoose.Schema.ObjectId, ref: "SymptomsThirty"},
     
 })
 LastThirtyToPatientSchema.plugin(timestamp);

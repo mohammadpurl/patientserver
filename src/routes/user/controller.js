@@ -165,17 +165,17 @@ module.exports = new (class extends controller {
             mStatus,
             education,
             country
-          } = userInfo;
-          
-          const email = user?.email;
-          const religionId = religion?._id;
-          const nationalityId = nationality?._id;
-          const sexualityId = sexuality?._id;
-          const mStatusId = mStatus?._id;
-          const educationId = education?._id;
-          const countryId = country?._id;
-          
-          const userData = {
+        } = userInfo;
+
+        const email = user?.email;
+        const religionId = religion?._id;
+        const nationalityId = nationality?._id;
+        const sexualityId = sexuality?._id;
+        const mStatusId = mStatus?._id;
+        const educationId = education?._id;
+        const countryId = country?._id;
+
+        const userData = {
             id: _id,
             email,
             firstName,
@@ -198,7 +198,7 @@ module.exports = new (class extends controller {
             languages,
             fullName,
             country: countryId
-          };
+        };
         console.log(`processObject userData ${JSON.stringify(userData)}`)
         if (type && type == "show") {
             const languages = []
@@ -292,25 +292,29 @@ module.exports = new (class extends controller {
         }
     }
     // ************************InsertMedicationToPatient****************************
-    async InsertMedicationToPatient(req, res) {
+    async insertMedicationToPatient(req, res) {
         try {
             console.log("InsertMedicationToPatient")
             const medicationList = req.body?.medicationList;
             console.log(`medicationList${JSON.stringify(medicationList)}`)
 
-            const patientId = req.user?._id
+            const patientId = req.body?.patientId
             console.log(`patientId${patientId}`)
             for (var i = 0; i < medicationList.length; i++) {
                 console.log("medication" + medicationList[i].howManydays)
                 let medicationToPatient = new this.MedicationToPatient();
                 medicationToPatient.drugStrength = medicationList[i].drugStrength;
                 medicationToPatient.dosePerDay = medicationList[i].dosePerDay;
-                medicationToPatient.patientId = medicationList[i].patientId;
+                medicationToPatient.patientId = patientId;
                 medicationToPatient.medicationId = medicationList[i].medicationId;
                 medicationToPatient.howManydays = medicationList[i].howManydays;
-
-                const response = await medicationToPatient.save();
-                console.log(`medicationList response${JSON.stringify(response)}`)
+                const hasMedicationValue = await this.MedicationToPatient.find({ patientId: patientId, medicationId: medicationList[i].medicationId })
+                if (!hasMedicationValue) {
+                    const response = await medicationToPatient.save();
+                    console.log(`medicationList response${JSON.stringify(response)}`)
+                }
+                // TODO UPDATE OR Remove
+                
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 
@@ -324,21 +328,22 @@ module.exports = new (class extends controller {
         try {
             const patientId = req.body?.patientId
             const medication = await this.MedicationToPatient.find({ patientId: patientId })
-                .populate('medicationId', 'name, code')
+                .populate('medicationId', 'name code')
             this.response({ res, data: medication })
         } catch (error) {
             console.log(`Medication${error}`);
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
+
     // ************************InsertMedicalHisToPatient****************************
-    async InsertMedicalHisToPatient(req, res) {
+    async insertMedicalHisToPatient(req, res) {
         try {
             console.log("InsertMedicalHisToPatient")
             const medicalHisList = req.body?.medicalHisList;
             console.log(`medicalHisList${JSON.stringify(medicalHisList)}`)
 
-            const patientId = req.user?._id
+            const patientId = req.body.patientId
             console.log(`patientId${patientId}`)
             for (var i = 0; i < medicalHisList.length; i++) {
                 console.log("medication" + medicalHisList[i].value)
@@ -346,9 +351,14 @@ module.exports = new (class extends controller {
                 medicalHisToPatient.medicalHisId = medicalHisList[i].medicalHisId;
                 medicalHisToPatient.value = medicalHisList[i].value;
                 medicalHisToPatient.patientId = patientId;
+                const hasHistory = await this.medicalHisToPatient.find({ patientId: patientId, medicalHisId: medicalHisList[i].medicalHisId })
+                if (!hasHistory) {
+                    const response = await medicalHisToPatient.save();
+                    console.log(`medicalHisToPatient response${JSON.stringify(response)}`)
+                }
+                // TO DO
+                // Update or delete
 
-                const response = await medicalHisToPatient.save();
-                console.log(`medicalHisToPatient response${JSON.stringify(response)}`)
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 
@@ -357,19 +367,31 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
+    // **********************************getAllMedicalHistory*****************************
+    async getAllMedicalHistory(req, res) {
+        try {
+            const patientId = req.body?.patientId
+            const medicalHisory = await this.medicalHisToPatient.find({ patientId: patientId })
+                .populate('medicalHisId', 'name code')
+            this.response({ res, data: medicalHisory })
+        } catch (error) {
+            console.log(`medicalHisory${error}`);
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
+    }
     // ************************InsertMedicationToPatient****************************
-    async InsertLastThirtyToPatient(req, res) {
+    async insertLastThirtyToPatient(req, res) {
         try {
             console.log("InsertLastThirtyToPatient")
             const lastThirtyList = req.body?.lastThirtyList;
             console.log(`lastThirtyList${JSON.stringify(lastThirtyList)}`)
 
-            const patientId = req.user?._id
+            const patientId = req.body?.patientId._id
             console.log(`patientId${patientId}`)
             for (var i = 0; i < lastThirtyList.length; i++) {
                 console.log("lastThirty" + lastThirtyList[i].lastThirtyItem)
                 let lastThirtyToPatient = new this.LastThirtyToPatient();
-                lastThirtyToPatient.lastThirtyItem = lastThirtyList[i].lastThirtyItem;
+                lastThirtyToPatient.lastThirtyId = lastThirtyList[i].lastThirtyItem;
                 lastThirtyToPatient.value = lastThirtyList[i].value;
                 lastThirtyToPatient.patientId = patientId;
 
@@ -381,6 +403,18 @@ module.exports = new (class extends controller {
         } catch (error) {
             console.log(error)
             return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // **********************************getAllMedicalHistory*****************************
+    async getAllLastThirty(req, res) {
+        try {
+            const patientId = req.body?.patientId
+            const lastThirtyToPatient = await this.LastThirtyToPatient.find({ patientId: patientId })
+                .populate('lastThirtyId', 'name code')
+            this.response({ res, data: lastThirtyToPatient })
+        } catch (error) {
+            console.log(`medicalHisory${error}`);
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
 

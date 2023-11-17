@@ -69,7 +69,7 @@ router.post(
     '/medications',
     // validator.loginValidation(),
     // controller.validate,
-    controller.InsertMedicationToPatient
+    controller.insertMedicationToPatient
 
 )
 router.get(
@@ -84,17 +84,32 @@ router.post(
     '/lastThirty',
     // validator.loginValidation(),
     // controller.validate,
-    controller.InsertLastThirtyToPatient
+    controller.insertLastThirtyToPatient
 
 )
+router.get(
+    '/lastThirty',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getAllLastThirty
+
+)
+
 router.post(
+    '/pastmedicalhistory',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.insertMedicalHisToPatient
+
+)
+
+router.get(
     '/pastMedicalHistory',
     // validator.loginValidation(),
     // controller.validate,
-    controller.InsertMedicalHisToPatient
+    controller.getAllMedicalHistory
 
 )
-
 
 
 
