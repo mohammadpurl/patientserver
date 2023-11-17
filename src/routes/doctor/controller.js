@@ -27,14 +27,41 @@ module.exports = new (class extends controller {
         try {
             console.log("registerDoctor")
             
-            
+            let id = await this.saveGuardianorDoctorInDB(req, res);
+            const isDoctor = gOrD.isDoctor
+            console.log(`isDoctor${isDoctor}`)
+            if (id === 1) {
+                this.response({
+                    res, message: "the user successfully registered",
+                    data: _.pick(req.body, ["email"])
+                });
+            }
+            if (isDoctor) {
+                this.response({
+                    res, message: " successfully registered",
+                    data: id
+                });
+            }
+            else {
+
+                req.body.guardianId = id;
+
+                const gToP = await this.guardianToPatient(req, id)
+
+                console.log(`isDoctor == false `)
+                if (gToP === -1) {
+                    return res.status(500).json({ status: false, message: "something went wrong", data: error });
+
+                }
+                else {
                     this.response({
                         res, message: " successfully gto registered",
                         data: id
                     });
-                
+                }
 
-            
+
+            }
 
 
         } catch (error) {

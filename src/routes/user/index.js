@@ -32,14 +32,22 @@ router.put(
 
 )
 router.post(
-    '/registerdg',
-    // validator.paRegisterValidation(),
+    '/guardians',
+    validator.dgRegisterValidation(),
     // controller.validate,
-    controller.registerDoctorOrGuardian
+    controller.registerGuardian
 
 
 )
 
+router.get(
+    '/guardians',
+    validator.dgRegisterValidation(),
+    // controller.validate,
+    controller.getAllGuardian
+
+
+)
 
 router.get(
     '/profile',
