@@ -66,21 +66,29 @@ router.post(
 
 )
 router.post(
-    '/savemedication',
+    '/medications',
     // validator.loginValidation(),
     // controller.validate,
     controller.InsertMedicationToPatient
 
 )
+router.get(
+    '/medications',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getAllMedication
+
+)
+
 router.post(
-    '/savelastthirty',
+    '/lastThirty',
     // validator.loginValidation(),
     // controller.validate,
     controller.InsertLastThirtyToPatient
 
 )
 router.post(
-    '/savemedicalhistopatient',
+    '/pastMedicalHistory',
     // validator.loginValidation(),
     // controller.validate,
     controller.InsertMedicalHisToPatient

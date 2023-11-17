@@ -269,7 +269,7 @@ module.exports = new (class extends controller {
             console.log('guardianToPatient')
             let guardianToPatient = new GuardianToPatient();
             guardianToPatient.guardian = guardianId;
-            guardianToPatient.patient = req.userData._id
+            guardianToPatient.patient = req.user._id
 
             const response = await guardianToPatient.save();
             return response._id
@@ -305,7 +305,7 @@ module.exports = new (class extends controller {
                 let medicationToPatient = new this.MedicationToPatient();
                 medicationToPatient.drugStrength = medicationList[i].drugStrength;
                 medicationToPatient.dosePerDay = medicationList[i].dosePerDay;
-                medicationToPatient.patientId = patientId;
+                medicationToPatient.patientId = medicationList[i].patientId;
                 medicationToPatient.medicationId = medicationList[i].medicationId;
                 medicationToPatient.howManydays = medicationList[i].howManydays;
 
@@ -317,6 +317,18 @@ module.exports = new (class extends controller {
         } catch (error) {
             console.log(error)
             return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // **********************************getAllGuardian*****************************
+    async getAllMedication(req, res) {
+        try {
+            const patientId = req.body?.patientId
+            const medication = await this.MedicationToPatient.find({ patientId: patientId })
+                .populate('medicationId', 'name, code')
+            this.response({ res, data: medication })
+        } catch (error) {
+            console.log(`Medication${error}`);
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
     // ************************InsertMedicalHisToPatient****************************

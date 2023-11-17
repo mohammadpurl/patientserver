@@ -1,6 +1,8 @@
 require('dotenv').config();
 
 const User = require('./../modeles/user')
+const GuardianToPatient = require('./../modeles/guardianTopatient'); 
+const Patient = require('./../modeles/patient')
 const jwt = require('jsonwebtoken')
 
 async function isLoggined(req, res, next) {
@@ -23,6 +25,18 @@ async function isLoggined(req, res, next) {
         return res.status(401).json({ status: false, message: "Your session is not valid.", data: error });
     }
 
+}
+async function  getRoles(req, res, next){
+    try {
+        
+        const user= req.user
+        const isGuardian = await GuardianToPatient.find({guardian: user._id});
+        const isPatient = await Patient.find({user: user._id});
+        const isDoctor = user.isDoctor
+
+    } catch (error) {
+        console.log(error)
+    }
 }
 function verifyToken(req, res, next) {
     try {
