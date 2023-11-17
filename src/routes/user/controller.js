@@ -73,15 +73,8 @@ module.exports = new (class extends controller {
             );
             patient.user = userId;
             const response = await patient.save();
-            console.log(`patient register ${response}`)
-            const fullName = `${patient.firstName} ${patient.lastName}`;
-            const BMI = patient.weight / Math.pow(patient.height, 2);
-            console.log("BMI" + patient.weight)
-            console.log(Math.pow(patient.height, 2))
-            console.log(req.body);
-            const age = this._calculateAge(patient.birthDate);
-            const _id = response._id
-            const respondePatient = { ...req.body, fullName, BMI, age, _id }
+            console.log(`patient register ${response}`)           
+            const respondePatient =  this.processObject(response)
             this.response({
                 res, message: "the user successfully registered",
                 data: respondePatient
@@ -144,8 +137,9 @@ module.exports = new (class extends controller {
 
                 // Find the document by ID and update it with the new parameters
                 const updatedDocument = await this.Pationt.findByIdAndUpdate(id, updateParams);
-                const userInfo = await  this.Patient.findOne({ _id: id })
+                const userInfo = await this.Patient.findOne({ _id: id })
                 const userData = this.processObject(userInfo)
+                console.log(`patientUpdate${updatedDocument}`)
                 if (!updatedDocument) {
                     return res.status(404).json({ message: 'Document not found' });
                 }
@@ -190,11 +184,11 @@ module.exports = new (class extends controller {
             "hoursWorked": userInfo?.hoursWorked,
             "currentOccupatio": userInfo?.currentOccupatio,
             "birthDate": userInfo?.birthDate,
-            "religion": userInfo?.religion?.id,
-            "nationality": userInfo?.nationality?.id,
-            "sexuality": userInfo?.sexuality?.id,
-            "mStatus": userInfo?.mStatus?.id,
-            "education": userInfo?.education?.id,
+            "religion": userInfo?.religion?._id,
+            "nationality": userInfo?.nationality?._id,
+            "sexuality": userInfo?.sexuality?._id,
+            "mStatus": userInfo?.mStatus?._id,
+            "education": userInfo?.education?._id,
             "age": age,
             "BMI": BMI,
             "languages": languages,
@@ -202,6 +196,7 @@ module.exports = new (class extends controller {
             "languages": languages
 
         }
+        console.log(`processObject userData ${JSON.stringify(userData) }`)
         if (type && type == "show") {
             const languages = []
             userInfo?.languages.map((language) => {
