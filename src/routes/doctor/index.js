@@ -3,32 +3,13 @@ const router = express.Router();
 const controller = require('./controller');
 const validator = require('./validator')
 
-router.get(
-    '/patients',
-    // validator.paRegisterValidation(),
-    // controller.validate,
-    controller.getALlPatientList
 
-
-)
 router.post(
-    '/patients',
+    '/patientregister',
     // validator.paRegisterValidation(),
     // controller.validate,
-    controller.patientRegister)
+    controller.patientRegister
 
-router.get(
-    '/patients/:id',
-    // validator.loginValidation(),
-    // controller.validate,
-    controller.patientDetail
-
-)
-router.put(
-    '/patientsupdate/:id',
-    // validator.loginValidation(),
-    // controller.validate,
-    controller.patientUpdate
 
 )
 router.post(
@@ -39,8 +20,22 @@ router.post(
 
 
 )
+router.get(
+    '/userlist',
+    // validator.paRegisterValidation(),
+    // controller.validate,
+    controller.getALlPatientList
 
 
+)
+router.post(
+    '/hospitalregister',
+    validator.hospitalValidation(),
+
+    controller.hospitalRegister
+
+
+)
 router.get(
     '/profile',
     // validator.loginValidation(),
@@ -48,8 +43,27 @@ router.get(
     controller.profile
 
 )
+router.get(
+    '/patientdetail/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.patientDetail
 
+)
+router.get(
+    '/patientupdate/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.patientUpdate
 
+)
+router.get(
+    '/alldoctorlist',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getALlDoctors
+
+)
 router.post(
     '/guardiantopatient',
     // validator.loginValidation(),

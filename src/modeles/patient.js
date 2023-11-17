@@ -10,7 +10,7 @@ const PatientSchema = new mongoose.Schema({
     nationality:{ type: mongoose.Schema.ObjectId, ref: "Nationality"},
     sexuality:{ type: mongoose.Schema.ObjectId, ref: "Sexuality"},
     mStatus:{ type: mongoose.Schema.ObjectId, ref: "MStatus"},
-    language: [{ type: mongoose.Schema.ObjectId, ref: "Language"}],
+    languages: [{ type: mongoose.Schema.ObjectId, ref: "Language"}],
     education:{ type: mongoose.Schema.ObjectId, ref: "Education"},
     country:{ type: mongoose.Schema.ObjectId, ref: "Country"},
     address:{type: String},

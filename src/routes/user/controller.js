@@ -13,10 +13,11 @@ module.exports = new (class extends controller {
             .populate('nationality', 'name -_id')
             .populate('sexuality', 'name -_id')
             .populate('mStatus', 'name -_id')
-            .populate('language', 'name -_id')
+            .populate('languages', 'name -_id')
             .populate('education', 'name -_id')
 
-        const processedObjects = userInfo?.map(this.processObject);
+        const processedObjects = userInfo?.map((userInfo)=>this.processObject(userInfo,"show"));
+
 
 
         this.response({
@@ -43,48 +44,44 @@ module.exports = new (class extends controller {
     // *********************Register patients**********************
     async patientRegister(req, res) {
         try {
-            // const religionId = this.Religion.findOne({code:req.body.religion});
-            // const languageId =this.Language.findOne({code:req.body.language});   
-            // const nationalityId =this.Nationality.findOne({code:req.body.nationality});   
-            // const sexId =this.Sexuality.findOne({code:req.body.sexuality});   
-            // const mStatus =this.Language.findOne({code:req.body.mStatus});   
-            // const userId = this.User.findOne({email:req.body.email})
+
             const userId = req.user._id
             console.log("patientRegister")
             let patient = new this.Patient(_.pick(req.body, [
+                "sexuality",
+                "title",
                 "firstName",
                 "lastName",
-                "title",
-                "height",
-                "weight",
-                "mobileNumber",
-                "addreess",
-                "hoursWorked",
-                "religion",
-                "nationality",
-                "sexuality",
-                "mStatus",
-                "language",
-                "education",
-                "occupation",
-                "birthDate",
                 "address",
                 "country",
-                
-            ]), 
-            
-            
+                "mobileNumber",
+                "nationality",
+                "religion",
+                "mStatus",
+                "education",
+                "languages",
+                "occupation",
+                "height",
+                "weight",
+                "hoursWorked",
+
+                "birthDate"
+
+            ]),
+
+
             );
-            patient.user = userId; 
+            patient.user = userId;
             const response = await patient.save();
+            console.log(`patient register ${response}`)
             const fullName = `${patient.firstName} ${patient.lastName}`;
-            const BMI = patient.weigth / Math.pow(patient.height, 2);
-            console.log("BMI" + patient.weigth)
+            const BMI = patient.weight / Math.pow(patient.height, 2);
+            console.log("BMI" + patient.weight)
             console.log(Math.pow(patient.height, 2))
             console.log(req.body);
             const age = this._calculateAge(patient.birthDate);
-
-            const respondePatient = { ...req.body, fullName, BMI, age }
+            const _id = response._id
+            const respondePatient = { ...req.body, fullName, BMI, age, _id }
             this.response({
                 res, message: "the user successfully registered",
                 data: respondePatient
@@ -98,33 +95,7 @@ module.exports = new (class extends controller {
         }
 
     }
-    // *********************Register Hospital**********************
-    async hospitalRegister(req, res) {
-        try {
 
-            console.log("hospital Register")
-            let hospital = new Hospital(_.pick(req.body, [
-                "Country",
-                "name"
-
-
-            ]));
-
-            const response = await hospital.save();
-
-
-            this.response({
-                res, message: "the hospital successfully registered",
-                data: _.pick(response, ["_id"])
-
-            });
-        } catch (error) {
-
-            console.log(error)
-            return res.status(500).json({ status: false, message: "something went wrong", data: error });
-        }
-
-    }
     // *********************prifile**********************
     async profile(req, res) {
         console.log(`req.user${req.user}`)
@@ -150,34 +121,11 @@ module.exports = new (class extends controller {
             .populate('nationality', 'name code _id')
             .populate('sexuality', 'name code _id')
             .populate('mStatus', 'name code _id')
-            .populate('language', 'name code _id')
+            .populate('languages', 'name code _id')
             .populate('education', 'name  code _id')
             .populate('country', 'name  code _id')
-
-        const userData = {
-            "id": userInfo?._id,
-            "email": userInfo?.user?.email,
-            "firstName": userInfo?.firstName,
-            "lastName": userInfo?.lastName,
-            "title": userInfo?.title,
-            "height": userInfo?.height,
-            "weight": userInfo?.weight,
-            "mobileNumber": userInfo?.mobileNumber,
-            "addreess": userInfo?.addreess,
-            "hoursWorked": userInfo?.hoursWorked,
-            "religion": userInfo?.religion?._id,
-            "nationality": userInfo?.nationality?._id,
-            "sexuality": userInfo?.sexuality?._id,
-            "mStatus": userInfo?.mStatus?._id,
-            "language": userInfo?.language?._id,
-            "education": userInfo?.education?._id,
-            "occupation": userInfo?.occupation,
-            "birthDate": userInfo?.birthDate,
-            "country" : userInfo?.country?._id,
-            "address" : userInfo?.addreess
-
-        }
-        console.log(`userData ${JSON.stringify(userData)}`)
+        // console.log(`patientDetail:userInfo${userInfo}`)
+       const userData = this.processObject(userInfo)
         this.response({
             res, message: "",
             data: userData
@@ -191,18 +139,19 @@ module.exports = new (class extends controller {
             const isAdmin = req.userData.isAdmin
             const userId = req.userData._id
             const id = req.params.id;
-            if (isAdmin || id === userId) {
+            // if (isAdmin || id === userId) {
                 const updateParams = req.body;
 
                 // Find the document by ID and update it with the new parameters
-                const updatedDocument = await this.Pationt.findByIdAndUpdate(id, updateParams, { new: true });
-
+                const updatedDocument = await this.Pationt.findByIdAndUpdate(id, updateParams);
+                const userInfo = await  this.Patient.findOne({ _id: id })
+                const userData = this.processObject(userInfo)
                 if (!updatedDocument) {
                     return res.status(404).json({ message: 'Document not found' });
                 }
 
-                this.response({ res, data: updatedDocument })
-            }
+                this.response({ res, data: userData })
+            // }
 
 
         } catch (error) {
@@ -218,7 +167,16 @@ module.exports = new (class extends controller {
         return Math.abs(ageDate.getUTCFullYear() - 1970);
     }
     // ****************************************get user info
-    processObject(userInfo) {
+    processObject(userInfo, type) {
+
+        const fullName = `${userInfo.firstName} ${userInfo.lastName}`;
+        const BMI = userInfo.weight / Math.pow(userInfo.height, 2);
+        console.log("BMI" + BMI)
+        console.log(Math.pow(userInfo.height, 2))
+        const age = this._calculateAge(userInfo.birthDate);
+        const languages = []
+        userInfo?.languages.map((language) => languages.push(language._id))
+
         const userData = {
             "id": userInfo?._id,
             "email": userInfo?.user?.email,
@@ -230,16 +188,33 @@ module.exports = new (class extends controller {
             "mobileNumber": userInfo?.mobileNumber,
             "addreess": userInfo?.addreess,
             "hoursWorked": userInfo?.hoursWorked,
-            "religion": userInfo?.religion?.name,
-            "nationality": userInfo?.nationality?.name,
-            "sexuality": userInfo?.sexuality?.name,
-            "mStatus": userInfo?.mStatus?.name,
-            "language": userInfo?.language?.name,
-            "education": userInfo?.education?.name,
             "currentOccupatio": userInfo?.currentOccupatio,
             "birthDate": userInfo?.birthDate,
+            "religion": userInfo?.religion?.id,
+            "nationality": userInfo?.nationality?.id,
+            "sexuality": userInfo?.sexuality?.id,
+            "mStatus": userInfo?.mStatus?.id,
+            "education": userInfo?.education?.id,
+            "age": age,
+            "BMI": BMI,
+            "languages": languages,
+            "fullName": fullName,
+            "languages": languages
 
+        }
+        if (type && type == "show") {
+            const languages = []
+            userInfo?.languages.map((language) => {
+                console.log(`processObject${language.name}`)
+                languages.push(language.name)
+            })
 
+            userData.religion = userInfo?.religion?.name;
+            userData.nationality = userInfo?.nationality?.name;
+            userData.sexuality = userInfo?.sexuality?.name;
+            userData.mStatus = userInfo?.mStatus?.name;
+            userData.education = userInfo?.education?.name;
+            userData.languages =languages
         }
         return userData
     }
@@ -360,8 +335,8 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
-     // ************************InsertMedicalHisToPatient****************************
-     async InsertMedicalHisToPatient(req, res) {
+    // ************************InsertMedicalHisToPatient****************************
+    async InsertMedicalHisToPatient(req, res) {
         try {
             console.log("InsertMedicalHisToPatient")
             const medicalHisList = req.body?.medicalHisList;
