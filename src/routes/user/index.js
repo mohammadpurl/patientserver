@@ -25,7 +25,7 @@ router.get(
 
 )
 router.put(
-    '/patientsupdate/:id',
+    '/patients/:id',
     // validator.loginValidation(),
     // controller.validate,
     controller.patientUpdate
