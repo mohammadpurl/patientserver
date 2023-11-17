@@ -76,7 +76,7 @@ router.get(
 //     controller.InsertMedication)
 
 router.get(
-    '/medications',
+    '/currentmedications',
     controller.GetAllMedicationes)
 
 // router.post(
@@ -100,7 +100,7 @@ router.get(
 //     controller.InserttMedicalHistory)
 
 router.get(
-    '/medicalhistoryitems',
+    '/pastmedicalhistory',
     controller.GetMedicalHistoryItems)
 
 module.exports = router
