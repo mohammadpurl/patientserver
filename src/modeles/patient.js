@@ -12,7 +12,8 @@ const PatientSchema = new mongoose.Schema({
     mStatus:{ type: mongoose.Schema.ObjectId, ref: "MStatus"},
     language: [{ type: mongoose.Schema.ObjectId, ref: "Language"}],
     education:{ type: mongoose.Schema.ObjectId, ref: "Education"},
-
+    country:{ type: mongoose.Schema.ObjectId, ref: "Country"},
+    address:{type: String},
     firstName:{type: String},
     lastName:{type: String},
     title:{type: String},
@@ -28,7 +29,7 @@ const PatientSchema = new mongoose.Schema({
     // nextofKin_Email:{type: String},
     // nextofKin_Mobile:{type: String},
     
-    currentOccupation:{type: String},
+    occupation:{type: String},
     hoursWorked:{type: Number},
     
     // dateStamp:{type: Date},

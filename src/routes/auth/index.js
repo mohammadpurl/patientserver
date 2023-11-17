@@ -118,4 +118,12 @@ router.get(
     '/womenhistoryItem',
     controller.GetWomenHistoryItems)
 
+router.post(
+    '/insertmedicalhistory',
+    controller.InserttMedicalHistory)
+
+router.get(
+    '/medicalhistoryitem',
+    controller.GetMedicalHistoryItems)
+
 module.exports = router

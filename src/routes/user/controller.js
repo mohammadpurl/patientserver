@@ -34,12 +34,12 @@ module.exports = new (class extends controller {
                 res, message: "",
                 data: userInfo
             });
-        } catch (error) {   
+        } catch (error) {
             console.log(error)
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
-    
+
     // *********************Register patients**********************
     async patientRegister(req, res) {
         try {
@@ -49,14 +49,14 @@ module.exports = new (class extends controller {
             // const sexId =this.Sexuality.findOne({code:req.body.sexuality});   
             // const mStatus =this.Language.findOne({code:req.body.mStatus});   
             // const userId = this.User.findOne({email:req.body.email})
+            const userId = req.user._id
             console.log("patientRegister")
             let patient = new this.Patient(_.pick(req.body, [
-                "user",
                 "firstName",
                 "lastName",
                 "title",
                 "height",
-                "weigth",
+                "weight",
                 "mobileNumber",
                 "addreess",
                 "hoursWorked",
@@ -66,11 +66,16 @@ module.exports = new (class extends controller {
                 "mStatus",
                 "language",
                 "education",
-                "currentOccupatio",
+                "occupation",
                 "birthDate",
-
-            ]));
-
+                "address",
+                "country",
+                
+            ]), 
+            
+            
+            );
+            patient.user = userId; 
             const response = await patient.save();
             const fullName = `${patient.firstName} ${patient.lastName}`;
             const BMI = patient.weigth / Math.pow(patient.height, 2);
@@ -137,22 +142,45 @@ module.exports = new (class extends controller {
 
     // *********************patientDeatil**********************
     async patientDetail(req, res) {
-        console.log(`req.user${req.user}`)
+        console.log(`lmp${req.user}`)
         const userId = req.params.id;
         let userInfo = await this.Patient.findOne({ _id: userId })
             .populate('user', 'email')
-            .populate('religion', 'name -_id')
-            .populate('nationality', 'name -_id')
-            .populate('sexuality', 'name -_id')
-            .populate('mStatus', 'name -_id')
-            .populate('language', 'name -_id')
-            .populate('education', 'name -_id')
+            .populate('religion', 'name code _id')
+            .populate('nationality', 'name code _id')
+            .populate('sexuality', 'name code _id')
+            .populate('mStatus', 'name code _id')
+            .populate('language', 'name code _id')
+            .populate('education', 'name  code _id')
+            .populate('country', 'name  code _id')
 
-        // const userData = this.processObject(userInfo);
-        console.log(`userData ${JSON.stringify(userInfo)}`)
+        const userData = {
+            "id": userInfo?._id,
+            "email": userInfo?.user?.email,
+            "firstName": userInfo?.firstName,
+            "lastName": userInfo?.lastName,
+            "title": userInfo?.title,
+            "height": userInfo?.height,
+            "weight": userInfo?.weight,
+            "mobileNumber": userInfo?.mobileNumber,
+            "addreess": userInfo?.addreess,
+            "hoursWorked": userInfo?.hoursWorked,
+            "religion": userInfo?.religion?._id,
+            "nationality": userInfo?.nationality?._id,
+            "sexuality": userInfo?.sexuality?._id,
+            "mStatus": userInfo?.mStatus?._id,
+            "language": userInfo?.language?._id,
+            "education": userInfo?.education?._id,
+            "occupation": userInfo?.occupation,
+            "birthDate": userInfo?.birthDate,
+            "country" : userInfo?.country?._id,
+            "address" : userInfo?.addreess
+
+        }
+        console.log(`userData ${JSON.stringify(userData)}`)
         this.response({
             res, message: "",
-            data: userInfo
+            data: userData
         });
 
     }
@@ -198,7 +226,7 @@ module.exports = new (class extends controller {
             "lastName": userInfo?.lastName,
             "title": userInfo?.title,
             "height": userInfo?.height,
-            "weigth": userInfo?.weigth,
+            "weight": userInfo?.weigth,
             "mobileNumber": userInfo?.mobileNumber,
             "addreess": userInfo?.addreess,
             "hoursWorked": userInfo?.hoursWorked,
@@ -209,7 +237,8 @@ module.exports = new (class extends controller {
             "language": userInfo?.language?.name,
             "education": userInfo?.education?.name,
             "currentOccupatio": userInfo?.currentOccupatio,
-            "birthDate": userInfo?.birthDate
+            "birthDate": userInfo?.birthDate,
+
 
         }
         return userData
@@ -309,13 +338,13 @@ module.exports = new (class extends controller {
             console.log("InsertMedicationToPatient")
             const medicationList = req.body?.medicationList;
             console.log(`medicationList${JSON.stringify(medicationList)}`)
-            
+
             const patientId = req.user?._id
             console.log(`patientId${patientId}`)
             for (var i = 0; i < medicationList.length; i++) {
-                console.log("medication"+medicationList[i].howManydays)
+                console.log("medication" + medicationList[i].howManydays)
                 let medicationToPatient = new this.MedicationToPatient();
-                medicationToPatient.drugStrength = medicationList[i].drugStrength ;
+                medicationToPatient.drugStrength = medicationList[i].drugStrength;
                 medicationToPatient.dosePerDay = medicationList[i].dosePerDay;
                 medicationToPatient.patientId = patientId;
                 medicationToPatient.medicationId = medicationList[i].medicationId;
@@ -331,19 +360,45 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
+     // ************************InsertMedicalHisToPatient****************************
+     async InsertMedicalHisToPatient(req, res) {
+        try {
+            console.log("InsertMedicalHisToPatient")
+            const medicalHisList = req.body?.medicalHisList;
+            console.log(`medicalHisList${JSON.stringify(medicalHisList)}`)
+
+            const patientId = req.user?._id
+            console.log(`patientId${patientId}`)
+            for (var i = 0; i < medicalHisList.length; i++) {
+                console.log("medication" + medicalHisList[i].value)
+                let medicalHisToPatient = new this.medicalHisToPatient();
+                medicalHisToPatient.medicalHisId = medicalHisList[i].medicalHisId;
+                medicalHisToPatient.value = medicalHisList[i].value;
+                medicalHisToPatient.patientId = patientId;
+
+                const response = await medicalHisToPatient.save();
+                console.log(`medicalHisToPatient response${JSON.stringify(response)}`)
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
     // ************************InsertMedicationToPatient****************************
     async InsertLastThirtyToPatient(req, res) {
         try {
             console.log("InsertLastThirtyToPatient")
             const lastThirtyList = req.body?.lastThirtyList;
             console.log(`lastThirtyList${JSON.stringify(lastThirtyList)}`)
-            
+
             const patientId = req.user?._id
             console.log(`patientId${patientId}`)
             for (var i = 0; i < lastThirtyList.length; i++) {
-                console.log("lastThirty"+lastThirtyList[i].lastThirtyItem)
+                console.log("lastThirty" + lastThirtyList[i].lastThirtyItem)
                 let lastThirtyToPatient = new this.LastThirtyToPatient();
-                lastThirtyToPatient.lastThirtyItem = lastThirtyList[i].lastThirtyItem ;
+                lastThirtyToPatient.lastThirtyItem = lastThirtyList[i].lastThirtyItem;
                 lastThirtyToPatient.value = lastThirtyList[i].value;
                 lastThirtyToPatient.patientId = patientId;
 
