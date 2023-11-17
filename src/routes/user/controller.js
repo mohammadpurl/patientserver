@@ -146,9 +146,37 @@ module.exports = new (class extends controller {
         const age = this._calculateAge(userInfo.birthDate);
         const languages = []
         userInfo?.languages.map((language) => languages.push(language._id))
-        const { _id, email, firstName, lastName, title, height, weight, mobileNumber, address, hoursWorked, occupation, birthDate } =userInfo 
-        const userData = {
+        const {
             _id,
+            user,
+            firstName,
+            lastName,
+            title,
+            height,
+            weight,
+            mobileNumber,
+            address,
+            hoursWorked,
+            occupation,
+            birthDate,
+            religion,
+            nationality,
+            sexuality,
+            mStatus,
+            education,
+            country
+          } = userInfo;
+          
+          const email = user?.email;
+          const religionId = religion?._id;
+          const nationalityId = nationality?._id;
+          const sexualityId = sexuality?._id;
+          const mStatusId = mStatus?._id;
+          const educationId = education?._id;
+          const countryId = country?._id;
+          
+          const userData = {
+            id: _id,
             email,
             firstName,
             lastName,
@@ -160,19 +188,17 @@ module.exports = new (class extends controller {
             hoursWorked,
             occupation,
             birthDate,
-            "religion": userInfo?.religion?._id,
-            "nationality": userInfo?.nationality?._id,
-            "sexuality": userInfo?.sexuality?._id,
-            "mStatus": userInfo?.mStatus?._id,
-            "education": userInfo?.education?._id,
-            "age": age,
-            "BMI": BMI,
-            "languages": languages,
-            "fullName": fullName,
-            "country":userInfo?.country?._id
-           
-
-        }
+            religion: religionId,
+            nationality: nationalityId,
+            sexuality: sexualityId,
+            mStatus: mStatusId,
+            education: educationId,
+            age,
+            BMI,
+            languages,
+            fullName,
+            country: countryId
+          };
         console.log(`processObject userData ${JSON.stringify(userData)}`)
         if (type && type == "show") {
             const languages = []
