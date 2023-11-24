@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema({
     lastName:{type: String},
     title:{type: String}, 
     mobileNumber:{type: String},
+    birthDate:{type: Date},  
     creatoreId:{ type: mongoose.Schema.ObjectId, ref: 'User'},
     lastRefreshToken:{type: String }
 

@@ -10,94 +10,94 @@ router.get(
     controller.GetAllNationality)
 
 
-// router.post(
-//     '/insertnationbulk',
-//     controller.InsertNationality)
+router.post(
+    '/insertnationbulk',
+    controller.InsertNationality)
 
 router.get(
     '/languages',
     controller.GetAllLanguages)
 
 
-// router.post(
-//     '/insertlanguages',
-//     controller.InsertLanguages)
+router.post(
+    '/insertlanguages',
+    controller.InsertLanguages)
 
 router.get(
     '/religiones',
     controller.GetAllReligions)
 
 
-// router.post(
-//     '/insertreligiones',
-//     controller.InsertReligion)
+router.post(
+    '/insertreligiones',
+    controller.InsertReligion)
 
 router.get(
     '/mstatuses',
     controller.GetAllMStatuss)
 
 
-// router.post(
-//     '/insertmstatus',
-//     controller.InsertMstatuses)
+router.post(
+    '/insertmstatus',
+    controller.InsertMstatuses)
 
 router.get(
     '/education',
     controller.GetAllEducation)
 
 
-// router.post(
-//     '/insertsexuality',
-//     controller.InsertSexuality)
+router.post(
+    '/insertsexuality',
+    controller.InsertSexuality)
 
 router.get(
     '/sexualities',
     controller.GetSexuality)
 
 
-// router.post(
-//     '/insertcountries',
-//     controller.InsertCountries)
+router.post(
+    '/insertcountries',
+    controller.InsertCountries)
 
 router.get(
     '/countries',
     controller.GetAllCountries)
 
-// router.post(
-//     '/inserttitle',
-//     controller.InsertTitle)
+router.post(
+    '/inserttitle',
+    controller.InsertTitle)
 
 router.get(
     '/titles',
     controller.GetAllTitles)
 
-// router.post(
-//     '/insertmedication',
-//     controller.InsertMedication)
+router.post(
+    '/insertmedication',
+    controller.InsertMedication)
 
 router.get(
     '/currentmedications',
     controller.GetAllMedicationes)
 
-// router.post(
-//     '/insertlastthirty',
-//     controller.InserttLastThirty)
+router.post(
+    '/insertlastthirty',
+    controller.InserttLastThirty)
 
 router.get(
     '/lastthirtyitems',
     controller.GetLastThirtyItems)
 
-// router.post(
-//     '/insertwomenhistory',
-//     controller.InserttWomenHistory)
+router.post(
+    '/insertwomenhistory',
+    controller.InserttWomenHistory)
 
 router.get(
     '/womenhistoryitems',
     controller.GetWomenHistoryItems)
 
-// router.post(
-//     '/insertmedicalhistory',
-//     controller.InserttMedicalHistory)
+router.post(
+    '/insertmedicalhistory',
+    controller.InserttMedicalHistory)
 
 router.get(
     '/pastmedicalhistory',

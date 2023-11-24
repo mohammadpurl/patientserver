@@ -2,12 +2,15 @@ const controller = require('./../controller');
 const Hospital = require('./../../modeles/hospital');
 const _ = require("lodash");
 const bcrypt = require('bcrypt');
-const GuardianToPatient = require('./../../modeles/guardianTopatient');
+const { default: mongoose } = require('mongoose');
+
 
 module.exports = new (class extends controller {
+    //get all visit list for a patient
     async getALlPatientList(req, res) {
         console.log("getALlPatientList")
-        let userInfo = await this.Patient.find()
+       
+        let userInfo = await this.Patient.find({ user: req.user._id })
             .populate('user', 'email')
             .populate('religion', 'name -_id')
             .populate('nationality', 'name -_id')
@@ -15,6 +18,8 @@ module.exports = new (class extends controller {
             .populate('mStatus', 'name -_id')
             .populate('languages', 'name -_id')
             .populate('education', 'name -_id')
+
+
 
         const processedObjects = userInfo?.map((userInfo) => this.processObject(userInfo, "show"));
         this.response({
@@ -82,9 +87,9 @@ module.exports = new (class extends controller {
 
     // *********************patientDeatil**********************
     async patientDetail(req, res) {
-        console.log(`lmp${req.user}`)
-        const userId = req.params.id;
-        let userInfo = await this.Patient.findOne({ _id: userId })
+       const patientId = req.params.id
+
+        let userInfo = await this.Patient.findOne({ _id: patientId })
             .populate('user', 'email')
             .populate('religion', 'name code _id')
             .populate('nationality', 'name code _id')
@@ -93,35 +98,46 @@ module.exports = new (class extends controller {
             .populate('languages', 'name code _id')
             .populate('education', 'name  code _id')
             .populate('country', 'name  code _id')
-
-        const userData = this.processObject(userInfo)
-        this.response({
-            res, message: "",
-            data: userData
-        });
-
+            console.log(`patientDetail userInfo: ${userInfo}`)
+        if (userInfo) {
+            const userData = this.processObject(userInfo)
+            this.response({
+                res, message: "",
+                data: userData
+            });
+        }
+        else {
+            this.response({
+                res, message: "",
+                data: {}
+            });
+        }
     }
 
     //********************************patientUpdate************************************ */
     async patientUpdate(req, res) {
         try {
-            const isAdmin = req.userData.isAdmin
-            const userId = req.userData._id
-            const id = req.params.id;
-            // if (isAdmin || id === userId) {
-            const updateParams = req.body;
-
-            // Find the document by ID and update it with the new parameters
-            const updatedDocument = await this.Pationt.findByIdAndUpdate(id, updateParams);
-            const userInfo = await this.Patient.findOne({ _id: id })
-            const userData = this.processObject(userInfo)
-            console.log(`patientUpdate${updatedDocument}`)
-            if (!updatedDocument) {
-                return res.status(404).json({ message: 'Document not found' });
+            const isAdmin = req.user.isadmin            
+            
+            const hasAccess = this.checkAccess(req, res);
+            if(!hasAccess) {
+                return res.status(403).json({ status: false, message: "Access denied", data: {} });
             }
+            const userId = req.params.id;
+            if (hasAccess ) {
+                const updateParams = req.body;
 
-            this.response({ res, data: userData })
-            // }
+                // Find the document by ID and update it with the new parameters
+                const updatedDocument = await this.Pationt.findByIdAndUpdate(userId, updateParams);
+                const userInfo = await this.Patient.findOne({ _id: id })
+                const userData = this.processObject(userInfo)
+                console.log(`patientUpdate${updatedDocument}`)
+                if (!updatedDocument) {
+                    return res.status(404).json({ message: 'Document not found' });
+                }
+
+                this.response({ res, data: userData })
+            }
 
 
         } catch (error) {
@@ -129,6 +145,7 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
+
     // *******************************************calculate age
     _calculateAge(birthday) { // birthday is a date
         var ageDifMs = Date.now() - birthday?.getTime();
@@ -138,14 +155,7 @@ module.exports = new (class extends controller {
     }
     // ****************************************get user info
     processObject(userInfo, type) {
-
-        const fullName = `${userInfo.firstName} ${userInfo.lastName}`;
-        const BMI = userInfo.weight / Math.pow(userInfo.height, 2);
-        console.log("BMI" + BMI)
-        console.log(Math.pow(userInfo.height, 2))
-        const age = this._calculateAge(userInfo.birthDate);
-        const languages = []
-        userInfo?.languages.map((language) => languages.push(language._id))
+       
         const {
             _id,
             user,
@@ -166,7 +176,7 @@ module.exports = new (class extends controller {
             education,
             country
         } = userInfo;
-
+        console.log(`processObject userInfo:${userInfo}`)
         const email = user?.email;
         const religionId = religion?._id;
         const nationalityId = nationality?._id;
@@ -174,6 +184,14 @@ module.exports = new (class extends controller {
         const mStatusId = mStatus?._id;
         const educationId = education?._id;
         const countryId = country?._id;
+
+        const fullName = `${firstName} ${lastName}`;
+        const BMI = weight / Math.pow(height, 2);
+        console.log("BMI" + BMI)
+        console.log(Math.pow(height, 2))
+        const age = this._calculateAge(birthDate);
+        const languages = []
+        userInfo?.languages?.map((language) => languages.push(language._id))
 
         const userData = {
             id: _id,
@@ -267,7 +285,7 @@ module.exports = new (class extends controller {
 
         try {
             console.log('guardianToPatient')
-            let guardianToPatient = new GuardianToPatient();
+            let guardianToPatient = new this.GuardianToPatient();
             guardianToPatient.guardian = guardianId;
             guardianToPatient.patient = req.user._id
 
@@ -283,7 +301,7 @@ module.exports = new (class extends controller {
     async getAllGuardian(req, res) {
         try {
             const patientId = req.body?.patient
-            const guardians = await GuardianToPatient.find({ patient: patientId })
+            const guardians = await this.GuardianToPatient.find({ patient: patientId })
                 .populate('guardian', 'email firstName lastName mobileNumber title')
             this.response({ res, data: guardians })
         } catch (error) {
@@ -314,7 +332,7 @@ module.exports = new (class extends controller {
                     console.log(`medicationList response${JSON.stringify(response)}`)
                 }
                 // TODO UPDATE OR Remove
-                
+
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 
@@ -414,6 +432,36 @@ module.exports = new (class extends controller {
             this.response({ res, data: lastThirtyToPatient })
         } catch (error) {
             console.log(`medicalHisory${error}`);
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
+    }
+
+    // *******************************************check access
+    checkAccess(req, res, next) {
+        try {
+            let userId = req.params.id;
+            console.log(`userId ${userId}`)
+            if (userId != 1 && !ObjectId.isValid(userId)) {
+                this.response({
+                    res, message: "Invalid Object ID", code: "400"
+                });
+            }
+            if (userId == 1) {
+                userId = req.user._id
+                req.params.id = userId
+            }
+            const hasAccess = false
+            if (req.gRelatedPatientList.includes(userId) || req.dRelatedPatientList.includes(userId) || userId == req.user._id) {
+                hasAccess = true
+            }
+            if (hasAccess) {
+                return true;
+            }
+            else {
+                return false
+            }
+        } catch (error) {
+            console.log(error)
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }

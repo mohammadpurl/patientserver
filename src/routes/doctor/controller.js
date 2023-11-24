@@ -9,7 +9,7 @@ module.exports = new (class extends controller {
     async getALlDoctors(req, res) {
         try {
             console.log("getALlDoctorsList")
-            let userInfo = await this.User.find({ isDoctor: true })
+            let userInfo = await this.User.find({ isDoctor: true, conformIsDoctor: true })
             console.log(`userInfo:${userInfo}`)
             this.response({
                 res, message: "",

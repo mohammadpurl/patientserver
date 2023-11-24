@@ -24,6 +24,13 @@ router.get(
     controller.patientDetail
 
 )
+router.get(
+    '/visits/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.patientDetail
+
+)
 router.put(
     '/patients/:id',
     // validator.loginValidation(),

@@ -1,13 +1,14 @@
 require('dotenv').config();
 
 const User = require('./../modeles/user')
-const GuardianToPatient = require('./../modeles/guardianTopatient'); 
+const GuardianToPatient = require('./../modeles/guardianTopatient');
+const DoctorToPatient = require('./../modeles/doctorTopatient');
 const Patient = require('./../modeles/patient')
 const jwt = require('jsonwebtoken')
 
 async function isLoggined(req, res, next) {
     // const token = req.header("X-auth-token")
-    console.log("isLoggined")
+    
     const token = req.headers.authorization.split(' ')[1];
     if (!token) res.status(401).send('access denied')
     try {
@@ -18,6 +19,7 @@ async function isLoggined(req, res, next) {
         req.token = token;
 
         const user = await User.findById(decoded.sub)
+        console.log(req)
         console.log(user)
         req.user = user
         next();
@@ -26,18 +28,30 @@ async function isLoggined(req, res, next) {
     }
 
 }
-async function  getRoles(req, res, next){
+async function getRelatedPatient(req, res, next) {
     try {
-        
-        const user= req.user
-        const isGuardian = await GuardianToPatient.find({guardian: user._id});
-        const isPatient = await Patient.find({user: user._id});
-        const isDoctor = user.isDoctor
+
+        const user = req.user
+        console.log(user._id)
+        const guardianRelatedPatient = await GuardianToPatient.find({ guardian: user._id });
+        const patientInf = await Patient.find({ user: user._id });
+        const doctorRelatedPatient = await DoctorToPatient.find({ user: user._id });
+        const guardianRelatedPatientList = []
+        const doctorRelatedPatientList = []
+        guardianRelatedPatient?.map((relatedPatient) => guardianRelatedPatientList.push(relatedPatient?.patient));
+        doctorRelatedPatient?.map((relatedPatient) => doctorRelatedPatientList.push(relatedPatient?.patient));
+        req.gRelatedPatientList = guardianRelatedPatientList;
+        req.dRelatedPatientList = doctorRelatedPatientList;
+
+        console.log(`guardianRelatedPatientList${JSON.stringify(guardianRelatedPatientList)}`)
+        next();
 
     } catch (error) {
         console.log(error)
+        return res.status(401).json({ status: false, message: "Your session is not valid.", data: error });
     }
 }
+
 function verifyToken(req, res, next) {
     try {
         // Bearer tokenstring
@@ -67,7 +81,7 @@ async function verifyRefreshToken(req, res, next) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
         req.userData = decoded;
-       
+
         const user = await User.findById(decoded.sub)
         if (!user || !user.lastRefreshToken)
             return res.status(401).json({ status: false, message: "Invalid request. Token is not in store." });
@@ -79,7 +93,11 @@ async function verifyRefreshToken(req, res, next) {
     }
 }
 
+
 module.exports = {
     isLoggined,
-    verifyRefreshToken
+    verifyRefreshToken,
+    getRelatedPatient,
+    
+
 }

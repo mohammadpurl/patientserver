@@ -1,8 +1,11 @@
 const controller = require('./../controller');
 const _ = require("lodash");
 const bcrypt = require('bcrypt');
-
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const User = require('./../../modeles/user')
+const GuardianToPatient = require('./../../modeles/guardianTopatient');
+const DoctorToPatient = require('./../../modeles/doctorTopatient');
+const Patient = require('./../../modeles/patient')
 
 
 
@@ -19,7 +22,7 @@ module.exports = new (class extends controller {
             })
         }
 
-        user = new this.User(_.pick(req.body, [ "email", "password", "isDoctor"]));
+        user = new this.User(_.pick(req.body, ["email", "password", "isDoctor"]));
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(user.password, salt);
         const response = await user.save();
@@ -28,18 +31,18 @@ module.exports = new (class extends controller {
         //     res, message: "the user successfully registered",
         //     data: _.pick(user, ["_id",  "email"])
         // });
-        res.redirect(307,'/api/auth//login');
+        res.redirect(307, '/api/auth//login');
     }
     // *********************login**********************
-    async login(req, res) { 
+    async login(req, res) {
         console.log(`login ${req}`);
         let user = await this.User.findOne({ email: req.body.email })
-           console.log(`user:${user}`)
+        console.log(`user:${user}`)
         if (!user) {
             console.log("!user")
             return this.response({ res, code: 400, message: "Invalid email or password" })
         }
-       
+
         const isvalid = await bcrypt.compare(req.body.password, user?.password);
         console.log(`isvalid ${isvalid}`)
         if (!isvalid) {
@@ -49,11 +52,35 @@ module.exports = new (class extends controller {
         const access_token = jwt.sign({ sub: user._id }, process.env.JWT_ACCESS_SECRET, { expiresIn: process.env.JWT_ACCESS_TIME });
 
         const refresh_token = await this.GenerateRefreshToken(user._id);
-
+        const userRole = await this.getRoles( user)
         console.log(refresh_token)
-
-        this.response({ res, message: "successfuly loged in", data: { access_token, refresh_token } })
+        console.log(`userRole after login ${JSON.stringify(userRole) }`)
+        this.response({ res, message: "successfuly loged in", data: { access_token, refresh_token ,userRole } })
     }
+    // *********************login**********************
+    async  getRoles(user) {
+        try {
+            const isDoctor = user.isDoctor && user.conformIsDoctor;
+            const guardianRelatedPatient = await GuardianToPatient.find({ guardian: user._id });
+            const isGuardian = guardianRelatedPatient.length > 0;
+            const patientInf = await Patient.find({ user: user._id });
+            const isPatient = patientInf.length > 0;
+    
+            const userRole = {
+                isAdmin: user.isadmin,
+                isDoctor,
+                isPatient,
+                isGuardian
+            };
+    
+            console.log(`getRoles userRole ${JSON.stringify(userRole)}`);
+            return userRole;
+        } catch (error) {
+            console.error(`getRoles error ${error}`);
+            throw error;
+        }
+    }
+    
     // *********************login**********************
     async logout(req, res) {
 
@@ -119,6 +146,6 @@ module.exports = new (class extends controller {
         }
     }
 
-   
+
 
 })();
