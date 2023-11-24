@@ -3,6 +3,7 @@ const Hospital = require('./../../modeles/hospital');
 const _ = require("lodash");
 const bcrypt = require('bcrypt');
 const GuardianToPatient = require('./../../modeles/guardianTopatient');
+const { json } = require('stream/consumers');
 
 module.exports = new (class extends controller {
     // *********************Get all Doctors**********************
@@ -28,13 +29,6 @@ module.exports = new (class extends controller {
             console.log("registerDoctor")
 
             let id = await this.savePractitionerInDB(req, res);
-            if (id === 1) {
-                this.response({
-                    res, message: "the user successfully registered",
-                    data: _.pick(req.body, ["email"])
-                });
-            }
-
             req.body.practitionerId = id;
 
             const dToP = await this.practitionerToPatient(req, id)
@@ -50,10 +44,6 @@ module.exports = new (class extends controller {
                 });
             }
 
-
-
-
-
         } catch (error) {
             console.log(error)
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
@@ -66,7 +56,7 @@ module.exports = new (class extends controller {
             console.log("savePractitionerInDB")
             let user = await this.User.findOne({ email: req.body.email })
             if (user) {
-                return 1
+                return user._id
             }
             const creatorId = req.userData._id
             user = new this.User(_.pick(req.body, ["email", "password", "isDoctor", "firstName", "lastName", "title", "mobileNumber"]));
@@ -90,7 +80,7 @@ module.exports = new (class extends controller {
             console.log('practitionerToPatient')
             let practitionerToPatient = new this.PractitionerToPatient();
             practitionerToPatient.practitionerId = practitionerId;
-            practitionerToPatient.patientId = req.patientId
+            practitionerToPatient.patientId = req.body.patientId
 
             const response = await practitionerToPatient.save();
             return response._id
@@ -101,84 +91,25 @@ module.exports = new (class extends controller {
         }
     }
     // ************************InsertMedicationToPatient****************************
-    async InsertMedicationToPatient(req, res) {
+    async relatedPractitionerToPatient(req, res){
         try {
-            console.log("InsertMedicationToPatient")
-            const medicationList = req.body?.medicationList;
-            console.log(`medicationList${JSON.stringify(medicationList)}`)
+            console.log('relatedPractitionerToPatient')
+            const patientId = req.params?.id;
+            let practitionerInfo = await this.PractitionerToPatient.find({ patientId: patientId })
+            .populate('practitionerId', 'email firstName lastName  mobileNumber isDoctor conformIsDoctor _id')
+           
+            console.log(`relatedPractitionerToPatient response ${JSON.stringify(practitionerInfo)}`)
+            this.response({
+                res, message: "",
+                data: practitionerInfo
+            });
 
-            const patientId = req.user?._id
-            console.log(`patientId${patientId}`)
-            for (var i = 0; i < medicationList.length; i++) {
-                console.log("medication" + medicationList[i].howManydays)
-                let medicationToPatient = new this.MedicationToPatient();
-                medicationToPatient.drugStrength = medicationList[i].drugStrength;
-                medicationToPatient.dosePerDay = medicationList[i].dosePerDay;
-                medicationToPatient.patientId = patientId;
-                medicationToPatient.medicationId = medicationList[i].medicationId;
-                medicationToPatient.howManydays = medicationList[i].howManydays;
-
-                const response = await medicationToPatient.save();
-                console.log(`medicationList response${JSON.stringify(response)}`)
-            }
-            return res.status(200).json({ status: true, message: "success.", data: {} });
-
+            
         } catch (error) {
-            console.log(error)
-            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+            console.log(` lmp practitionerToPatient ${error}`)          
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
-    // ************************InsertMedicalHisToPatient****************************
-    async InsertMedicalHisToPatient(req, res) {
-        try {
-            console.log("InsertMedicalHisToPatient")
-            const medicalHisList = req.body?.medicalHisList;
-            console.log(`medicalHisList${JSON.stringify(medicalHisList)}`)
-
-            const patientId = req.user?._id
-            console.log(`patientId${patientId}`)
-            for (var i = 0; i < medicalHisList.length; i++) {
-                console.log("medication" + medicalHisList[i].value)
-                let medicalHisToPatient = new this.medicalHisToPatient();
-                medicalHisToPatient.medicalHisId = medicalHisList[i].medicalHisId;
-                medicalHisToPatient.value = medicalHisList[i].value;
-                medicalHisToPatient.patientId = patientId;
-
-                const response = await medicalHisToPatient.save();
-                console.log(`medicalHisToPatient response${JSON.stringify(response)}`)
-            }
-            return res.status(200).json({ status: true, message: "success.", data: {} });
-
-        } catch (error) {
-            console.log(error)
-            return res.status(500).json({ status: true, message: "something went wrong", data: error });
-        }
-    }
-    // ************************InsertMedicationToPatient****************************
-    async InsertLastThirtyToPatient(req, res) {
-        try {
-            console.log("InsertLastThirtyToPatient")
-            const lastThirtyList = req.body?.lastThirtyList;
-            console.log(`lastThirtyList${JSON.stringify(lastThirtyList)}`)
-
-            const patientId = req.user?._id
-            console.log(`patientId${patientId}`)
-            for (var i = 0; i < lastThirtyList.length; i++) {
-                console.log("lastThirty" + lastThirtyList[i].lastThirtyItem)
-                let lastThirtyToPatient = new this.LastThirtyToPatient();
-                lastThirtyToPatient.lastThirtyItem = lastThirtyList[i].lastThirtyItem;
-                lastThirtyToPatient.value = lastThirtyList[i].value;
-                lastThirtyToPatient.patientId = patientId;
-
-                const response = await lastThirtyToPatient.save();
-                console.log(`lastThirtyList response${JSON.stringify(response)}`)
-            }
-            return res.status(200).json({ status: true, message: "success.", data: {} });
-
-        } catch (error) {
-            console.log(error)
-            return res.status(500).json({ status: true, message: "something went wrong", data: error });
-        }
-    }
+    
 
 })();

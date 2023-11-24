@@ -1,7 +1,7 @@
-// const express = require('express');
-// const router = express.Router();
-// const controller = require('./controller');
-// const validator = require('./validator')
+const express = require('express');
+const router = express.Router();
+const controller = require('./controller');
+const validator = require('./validator')
 
 
 // router.post(
@@ -9,25 +9,21 @@
 //     // validator.paRegisterValidation(),
 //     // controller.validate,
 //     controller.patientRegister
-
-
 // )
-// router.post(
-//     '/registerdg',
-//     // validator.paRegisterValidation(),
-//     // controller.validate,
-//     controller.registerDoctorOrGuardian
 
+router.post(
+    '/register',
+    validator.dgRegisterValidation(),
+    // controller.validate,
+    controller.registerPractitioner
+)
 
-// )
-// router.get(
-//     '/userlist',
-//     // validator.paRegisterValidation(),
-//     // controller.validate,
-//     controller.getALlPatientList
-
-
-// )
+router.get(
+    '/relatedPractitioner/:id',
+    // validator.paRegisterValidation(),
+    // controller.validate,
+    controller.relatedPractitionerToPatient
+)
 // router.post(
 //     '/hospitalregister',
 //     validator.hospitalValidation(),
@@ -105,4 +101,4 @@
 
 
 
-// module.exports = router
+module.exports = router
