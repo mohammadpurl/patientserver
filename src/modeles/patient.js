@@ -22,6 +22,7 @@ const PatientSchema = new mongoose.Schema({
     height:{type: Number},
     weight:{type: Number},   
     addreess:{type: String},
+    editable:{type:Boolean,  default:true},
     // nextofKin:{type: String},
     // nextofKin_Email:{type: String},
     // nextofKin_Mobile:{type: String},

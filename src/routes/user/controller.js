@@ -56,7 +56,8 @@ module.exports = new (class extends controller {
                 "height",
                 "weight",
                 "hoursWorked",
-                "birthDate"
+                "birthDate",
+                "editable"
             ]),
             );
             patient.user = userId;
@@ -194,7 +195,8 @@ module.exports = new (class extends controller {
                 sexuality,
                 mStatus,
                 education,
-                country
+                country,
+                editable
             } = userInfo;
             console.log(`processObject userInfo:${userInfo}`)
             const email = user?.email;
@@ -235,7 +237,8 @@ module.exports = new (class extends controller {
                 BMI,
                 languages,
                 fullName,
-                country: countryId
+                country: countryId,
+                editable
             };
             console.log(`processObject userData ${JSON.stringify(userData)}`)
             if (type && type == "show") {
