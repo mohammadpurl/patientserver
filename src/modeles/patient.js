@@ -13,17 +13,14 @@ const PatientSchema = new mongoose.Schema({
     languages: [{ type: mongoose.Schema.ObjectId, ref: "Language"}],
     education:{ type: mongoose.Schema.ObjectId, ref: "Education"},
     country:{ type: mongoose.Schema.ObjectId, ref: "Country"},
+    title:{ type: mongoose.Schema.ObjectId, ref: "Title"},
     address:{type: String},
     firstName:{type: String},
     lastName:{type: String},
-    title:{type: String},
     birthDate:{type: Date},    
     mobileNumber:{type: String},
     height:{type: Number},
-    weight:{type: Number},
-    
-   
-   
+    weight:{type: Number},   
     addreess:{type: String},
     // nextofKin:{type: String},
     // nextofKin_Email:{type: String},

@@ -5,7 +5,7 @@ const bcrypt = require('bcrypt');
 const GuardianToPatient = require('./../../modeles/guardianTopatient');
 
 module.exports = new (class extends controller {
-     // *********************Get all Doctors**********************
+    // *********************Get all Doctors**********************
     async getALlDoctors(req, res) {
         try {
             console.log("getALlDoctorsList")
@@ -20,48 +20,38 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
-    
+
     // ************************************insert Doctor or Guardian
-    async registerDoctor(req, res) {
+    async registerPractitioner(req, res) {
 
         try {
             console.log("registerDoctor")
-            
-            let id = await this.saveGuardianorDoctorInDB(req, res);
-            const isDoctor = gOrD.isDoctor
-            console.log(`isDoctor${isDoctor}`)
+
+            let id = await this.savePractitionerInDB(req, res);
             if (id === 1) {
                 this.response({
                     res, message: "the user successfully registered",
                     data: _.pick(req.body, ["email"])
                 });
             }
-            if (isDoctor) {
+
+            req.body.practitionerId = id;
+
+            const dToP = await this.practitionerToPatient(req, id)
+           
+            if (dToP === -1) {
+                return res.status(500).json({ status: false, message: "something went wrong", data: error });
+
+            }
+            else {
                 this.response({
-                    res, message: " successfully registered",
+                    res, message: " successfully gto registered",
                     data: id
                 });
             }
-            else {
-
-                req.body.guardianId = id;
-
-                const gToP = await this.guardianToPatient(req, id)
-
-                console.log(`isDoctor == false `)
-                if (gToP === -1) {
-                    return res.status(500).json({ status: false, message: "something went wrong", data: error });
-
-                }
-                else {
-                    this.response({
-                        res, message: " successfully gto registered",
-                        data: id
-                    });
-                }
 
 
-            }
+
 
 
         } catch (error) {
@@ -71,9 +61,9 @@ module.exports = new (class extends controller {
 
     }
     //********************************patientUpdate************************************ */
-    async saveGuardianorDoctorInDB(req) {
+    async savePractitionerInDB(req) {
         try {
-            console.log("saveGuardianorDoctorInDB")
+            console.log("savePractitionerInDB")
             let user = await this.User.findOne({ email: req.body.email })
             if (user) {
                 return 1
@@ -82,22 +72,22 @@ module.exports = new (class extends controller {
             user = new this.User(_.pick(req.body, ["email", "password", "isDoctor", "firstName", "lastName", "title", "mobileNumber"]));
             user.creatoreId = creatorId;
             const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(user.password, salt);
+            user.password = await bcrypt.hash(user.mobileNumber, salt);
             const response = await user.save();
-            console.log(`saveGuardianorDoctorInDB${response}`)
+            console.log(`savePractitionerInDB rsponse${response}`)
             const id = _.pick(user, ["_id"])
-            console.log("finish saveGuardianorDoctorInDB")
+            console.log("finish savePractitionerInDB")
             return id
         } catch (error) {
-            console.log(`saveGuardianorDoctorInDB LMP:${error}`)
+            console.log(`savePractitionerInDB LMP:${error}`)
             // return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
     // ************************************Guardian to Patient
-    async guardianToPatient(req, guardianId) {
+    async practitionerToPatient(req, guardianId) {
 
         try {
-            console.log('guardianToPatient')
+            console.log('practitionerToPatient')
             let guardianToPatient = new GuardianToPatient();
             guardianToPatient.guardian = guardianId;
             guardianToPatient.patient = req.userData._id
@@ -138,8 +128,8 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
-     // ************************InsertMedicalHisToPatient****************************
-     async InsertMedicalHisToPatient(req, res) {
+    // ************************InsertMedicalHisToPatient****************************
+    async InsertMedicalHisToPatient(req, res) {
         try {
             console.log("InsertMedicalHisToPatient")
             const medicalHisList = req.body?.medicalHisList;

@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const User = require('./../modeles/user')
 const GuardianToPatient = require('./../modeles/guardianTopatient');
-const DoctorToPatient = require('./../modeles/doctorTopatient');
+const PractitionerToPatient = require('./../modeles/practitionerTopatient');
 const Patient = require('./../modeles/patient')
 const jwt = require('jsonwebtoken')
 
@@ -35,7 +35,7 @@ async function getRelatedPatient(req, res, next) {
         console.log(user._id)
         const guardianRelatedPatient = await GuardianToPatient.find({ guardian: user._id });
         const patientInf = await Patient.find({ user: user._id });
-        const doctorRelatedPatient = await DoctorToPatient.find({ user: user._id });
+        const doctorRelatedPatient = await PractitionerToPatient.find({ user: user._id });
         const guardianRelatedPatientList = []
         const doctorRelatedPatientList = []
         guardianRelatedPatient?.map((relatedPatient) => guardianRelatedPatientList.push(relatedPatient?.patient));

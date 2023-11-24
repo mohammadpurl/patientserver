@@ -18,7 +18,8 @@ module.exports = new (class extends controller {
             .populate('mStatus', 'name -_id')
             .populate('languages', 'name -_id')
             .populate('education', 'name -_id')
-
+            .populate('title', 'name -_id')
+            .populate('country', 'name  code _id')
 
 
         const processedObjects = userInfo?.map((userInfo) => this.processObject(userInfo, "show"));
@@ -98,6 +99,8 @@ module.exports = new (class extends controller {
             .populate('languages', 'name code _id')
             .populate('education', 'name  code _id')
             .populate('country', 'name  code _id')
+            .populate('title', 'name -_id')
+
             console.log(`patientDetail userInfo: ${userInfo}`)
         if (userInfo) {
             const userData = this.processObject(userInfo)
@@ -184,7 +187,7 @@ module.exports = new (class extends controller {
         const mStatusId = mStatus?._id;
         const educationId = education?._id;
         const countryId = country?._id;
-
+        const titleId = title?._id;
         const fullName = `${firstName} ${lastName}`;
         const BMI = weight / Math.pow(height, 2);
         console.log("BMI" + BMI)
@@ -198,7 +201,7 @@ module.exports = new (class extends controller {
             email,
             firstName,
             lastName,
-            title,
+            title: titleId,
             height,
             weight,
             mobileNumber,
@@ -230,7 +233,8 @@ module.exports = new (class extends controller {
             userData.sexuality = sexuality?.name;
             userData.mStatus = mStatus?.name;
             userData.education = education?.name;
-            userData.languages = languages
+            userData.languages = languages;
+            userData.title = title?.name
         }
         return userData
     }

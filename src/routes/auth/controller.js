@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('./../../modeles/user')
 const GuardianToPatient = require('./../../modeles/guardianTopatient');
-const DoctorToPatient = require('./../../modeles/doctorTopatient');
+const PractitionerToPatient = require('./../../modeles/practitionerTopatient');
 const Patient = require('./../../modeles/patient')
 
 

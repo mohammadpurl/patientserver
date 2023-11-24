@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
 
-const DoctorToPatientSchema = new mongoose.Schema({
+const PractitionerToPatientSchema = new mongoose.Schema({
     doctorId: {
         type: mongoose.Schema.ObjectId, ref: 'User' , require: true
     },
@@ -11,6 +11,6 @@ const DoctorToPatientSchema = new mongoose.Schema({
 
 
 })
-DoctorToPatientSchema.plugin(timestamp);
-const DoctorToPatient = mongoose.model("DoctorToPatient",DoctorToPatientSchema);
-module.exports = DoctorToPatient;
+PractitionerToPatientSchema.plugin(timestamp);
+const PractitionerToPatient = mongoose.model("PractitionerToPatient",PractitionerToPatientSchema);
+module.exports = PractitionerToPatient;
