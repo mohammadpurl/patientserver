@@ -127,7 +127,57 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
+    // *********************delete a patient**********************
+    async patientDelete(req, res) {
+        try {
+            const patientId = req.params.id
+            const userId = req.user._id
 
+
+            let userInfo = await this.Patient.findOne({ _id: patientId })        
+            const UserIdFromDB =  userInfo?.user?._id       
+            console.log(`patientDelete userInfo: ${userInfo}`)
+
+            console.log(UserIdFromDB)
+            console.log(userId)
+
+            // TODO Must add Guardins
+            if(!userId.equals(UserIdFromDB) ){
+                this.response({                    
+                    res, 
+                    message: "Access denied!",
+                    code: "403",
+                    data: {}
+                });
+            }
+            else if(!userInfo){
+                 this.response({                    
+                    res, 
+                    message: "data not found",
+                    code: "404",
+                    data: {}
+                });
+            }
+            else if (!userInfo.editable) {
+                 this.response({                    
+                    res, 
+                    message: "This visit cannot be deleted",
+                    code: "403",
+                    data: {}
+                });
+            }
+            else {
+                await this.Patient.findOneAndDelete({ _id: patientId })     
+                 this.response({
+                    res, message: "seccess",
+                    data: {}
+                });
+            }
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
+    }
     //********************************patientUpdate************************************ */
     async patientUpdate(req, res) {
 

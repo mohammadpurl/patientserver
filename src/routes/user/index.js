@@ -24,6 +24,15 @@ router.get(
     controller.patientDetail
 
 )
+router.delete(
+    '/patients/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.patientDelete
+
+)
+
+
 router.get(
     '/visits/:id',
     // validator.loginValidation(),
