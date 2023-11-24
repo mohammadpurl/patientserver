@@ -311,7 +311,7 @@ module.exports = new (class extends controller {
     // **********************************getAllGuardian*****************************
     async getAllGuardian(req, res) {
         try {
-            const patientId = req.body?.patient
+            const patientId = req.params.id
             const guardians = await this.GuardianToPatient.find({ patient: patientId })
                 .populate('guardian', 'email firstName lastName mobileNumber title')
             this.response({ res, data: guardians })
@@ -339,10 +339,17 @@ module.exports = new (class extends controller {
                 medicationToPatient.howManydays = medicationList[i].howManydays;
                 const hasMedicationValue = await this.MedicationToPatient.find({ patientId: patientId, medicationId: medicationList[i].medicationId })
                 if (!hasMedicationValue) {
+                    console.log('!hasMedicationValue')
                     const response = await medicationToPatient.save();
                     console.log(`medicationList response${JSON.stringify(response)}`)
                 }
-                // TODO UPDATE OR Remove
+                else{
+                    console.log('hasMedicationValue')
+
+                    const resp = await this.MedicationToPatient.findOneAndDelete({patientId:patientId, medicationId: medicationList[i].medicationId })
+                    const response = await medicationToPatient.save();
+                    console.log(`medicationList in else response${JSON.stringify(response)}`)
+                }
 
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
@@ -355,7 +362,8 @@ module.exports = new (class extends controller {
     // **********************************getAllGuardian*****************************
     async getAllMedication(req, res) {
         try {
-            const patientId = req.body?.patientId
+            const patientId = req.params?.id
+            console.log(`getAllMedication patientId ${patientId}`)
             const medication = await this.MedicationToPatient.find({ patientId: patientId })
                 .populate('medicationId', 'name code')
             this.response({ res, data: medication })
@@ -368,14 +376,14 @@ module.exports = new (class extends controller {
     // ************************InsertMedicalHisToPatient****************************
     async insertMedicalHisToPatient(req, res) {
         try {
-            console.log("InsertMedicalHisToPatient")
+            console.log(req.body)
             const medicalHisList = req.body?.medicalHisList;
             console.log(`medicalHisList${JSON.stringify(medicalHisList)}`)
 
-            const patientId = req.body.patientId
-            console.log(`patientId${patientId}`)
-            for (var i = 0; i < medicalHisList.length; i++) {
-                console.log("medication" + medicalHisList[i].value)
+            const patientId = req.body?.patientId
+            console.log(`patientId ${patientId}`)
+            for (var i = 0; i < medicalHisList?.length; i++) {
+                console.log("medicalHisList" + medicalHisList[i].value)
                 let medicalHisToPatient = new this.medicalHisToPatient();
                 medicalHisToPatient.medicalHisId = medicalHisList[i].medicalHisId;
                 medicalHisToPatient.value = medicalHisList[i].value;
@@ -385,8 +393,14 @@ module.exports = new (class extends controller {
                     const response = await medicalHisToPatient.save();
                     console.log(`medicalHisToPatient response${JSON.stringify(response)}`)
                 }
-                // TO DO
-                // Update or delete
+                else{
+                    console.log('hasmedicalHisToPatient')
+                    
+                    const resp = await this.medicalHisToPatient.findOneAndDelete({patientId:patientId, medicalHisId: medicalHisList[i].medicalHisId })
+                    const response = await medicalHisToPatient.save();
+                    console.log(`medicalHisToPatient in else response${JSON.stringify(response)}`)
+                }
+               
 
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });

@@ -80,7 +80,7 @@ router.post(
 
 )
 router.get(
-    '/medications',
+    '/medications/:id',
     // validator.loginValidation(),
     // controller.validate,
     controller.getAllMedication
@@ -103,7 +103,7 @@ router.get(
 )
 
 router.post(
-    '/pastmedicalhistory',
+    '/medicalhistory',
     // validator.loginValidation(),
     // controller.validate,
     controller.insertMedicalHisToPatient
@@ -111,7 +111,7 @@ router.post(
 )
 
 router.get(
-    '/pastMedicalHistory',
+    '/medicalhistory/:id',
     // validator.loginValidation(),
     // controller.validate,
     controller.getAllMedicalHistory
