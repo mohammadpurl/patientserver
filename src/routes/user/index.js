@@ -88,14 +88,14 @@ router.get(
 )
 
 router.post(
-    '/lastThirty',
+    '/lastthirty',
     // validator.loginValidation(),
     // controller.validate,
     controller.insertLastThirtyToPatient
 
 )
 router.get(
-    '/lastThirty',
+    '/lastthirty/:id',
     // validator.loginValidation(),
     // controller.validate,
     controller.getAllLastThirty

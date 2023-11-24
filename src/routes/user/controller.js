@@ -429,7 +429,7 @@ module.exports = new (class extends controller {
             const lastThirtyList = req.body?.lastThirtyList;
             console.log(`lastThirtyList${JSON.stringify(lastThirtyList)}`)
 
-            const patientId = req.body?.patientId._id
+            const patientId = req.body?.patientId
             console.log(`patientId${patientId}`)
             for (var i = 0; i < lastThirtyList.length; i++) {
                 console.log("lastThirty" + lastThirtyList[i].lastThirtyItem)
@@ -438,8 +438,22 @@ module.exports = new (class extends controller {
                 lastThirtyToPatient.value = lastThirtyList[i].value;
                 lastThirtyToPatient.patientId = patientId;
 
-                const response = await lastThirtyToPatient.save();
-                console.log(`lastThirtyList response${JSON.stringify(response)}`)
+               
+
+                const lastThirty = await this.LastThirtyToPatient.find({ patientId: patientId, lastThirtyId: lastThirtyList[i].lastThirtyItem })
+                if (!lastThirty) {
+                    const response = await lastThirtyToPatient.save();
+                    console.log(`lastThirtyList response${JSON.stringify(response)}`)
+                }
+                else{
+                    console.log('lastThirtyItem')
+                    
+                    const resp = await this.LastThirtyToPatient.findOneAndDelete({ patientId: patientId, lastThirtyId: lastThirtyList[i].lastThirtyItem })
+                    const response = await lastThirtyToPatient.save();
+                    console.log(`lastThirtyList response${JSON.stringify(response)}`)
+                }
+
+
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 
@@ -451,7 +465,7 @@ module.exports = new (class extends controller {
     // **********************************getAllMedicalHistory*****************************
     async getAllLastThirty(req, res) {
         try {
-            const patientId = req.body?.patientId
+            const patientId = req.params?.id
             const lastThirtyToPatient = await this.LastThirtyToPatient.find({ patientId: patientId })
                 .populate('lastThirtyId', 'name code')
             this.response({ res, data: lastThirtyToPatient })
