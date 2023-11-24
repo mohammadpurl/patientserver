@@ -118,7 +118,7 @@ module.exports = new (class extends controller {
     }
 
     //********************************patientUpdate************************************ */
-    async patientUpdate(req, res) {       
+    async patientUpdate(req, res) {
 
         try {
             // const isAdmin = req.user.isadmin
@@ -329,6 +329,11 @@ module.exports = new (class extends controller {
 
             const patientId = req.body?.patientId
             console.log(`patientId${patientId}`)
+            const hasMedicationValue = await this.MedicationToPatient.find({ patientId: patientId })
+            if (hasMedicationValue) {
+                const resp = await this.MedicationToPatient.deleteMany({ patientId: patientId })
+            }
+
             for (var i = 0; i < medicationList.length; i++) {
                 console.log("medication" + medicationList[i].howManydays)
                 let medicationToPatient = new this.MedicationToPatient();
@@ -337,20 +342,8 @@ module.exports = new (class extends controller {
                 medicationToPatient.patientId = patientId;
                 medicationToPatient.medicationId = medicationList[i].medicationId;
                 medicationToPatient.howManydays = medicationList[i].howManydays;
-                const hasMedicationValue = await this.MedicationToPatient.find({ patientId: patientId, medicationId: medicationList[i].medicationId })
-                if (!hasMedicationValue) {
-                    console.log('!hasMedicationValue')
-                    const response = await medicationToPatient.save();
-                    console.log(`medicationList response${JSON.stringify(response)}`)
-                }
-                else{
-                    console.log('hasMedicationValue')
-
-                    const resp = await this.MedicationToPatient.findOneAndDelete({patientId:patientId, medicationId: medicationList[i].medicationId })
-                    const response = await medicationToPatient.save();
-                    console.log(`medicationList in else response${JSON.stringify(response)}`)
-                }
-
+                const response = await medicationToPatient.save();
+                console.log(`medicationList response${JSON.stringify(response)}`)
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 
@@ -379,28 +372,20 @@ module.exports = new (class extends controller {
             console.log(req.body)
             const medicalHisList = req.body?.medicalHisList;
             console.log(`medicalHisList${JSON.stringify(medicalHisList)}`)
-
             const patientId = req.body?.patientId
             console.log(`patientId ${patientId}`)
+            const hasHistory = await this.medicalHisToPatient.find({ patientId: patientId, medicalHisId: medicalHisList[i].medicalHisId })
+            if (hasHistory) {
+                const resp = await this.medicalHisToPatient.deleteMany({ patientId: patientId })
+            }
             for (var i = 0; i < medicalHisList?.length; i++) {
                 console.log("medicalHisList" + medicalHisList[i].value)
                 let medicalHisToPatient = new this.medicalHisToPatient();
                 medicalHisToPatient.medicalHisId = medicalHisList[i].medicalHisId;
                 medicalHisToPatient.value = medicalHisList[i].value;
                 medicalHisToPatient.patientId = patientId;
-                const hasHistory = await this.medicalHisToPatient.find({ patientId: patientId, medicalHisId: medicalHisList[i].medicalHisId })
-                if (!hasHistory) {
-                    const response = await medicalHisToPatient.save();
-                    console.log(`medicalHisToPatient response${JSON.stringify(response)}`)
-                }
-                else{
-                    console.log('hasmedicalHisToPatient')
-                    
-                    const resp = await this.medicalHisToPatient.findOneAndDelete({patientId:patientId, medicalHisId: medicalHisList[i].medicalHisId })
-                    const response = await medicalHisToPatient.save();
-                    console.log(`medicalHisToPatient in else response${JSON.stringify(response)}`)
-                }
-               
+                const response = await medicalHisToPatient.save();
+                console.log(`medicalHisToPatient in else response${JSON.stringify(response)}`)
 
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
@@ -428,33 +413,23 @@ module.exports = new (class extends controller {
             console.log("InsertLastThirtyToPatient")
             const lastThirtyList = req.body?.lastThirtyList;
             console.log(`lastThirtyList${JSON.stringify(lastThirtyList)}`)
-
             const patientId = req.body?.patientId
             console.log(`patientId${patientId}`)
+            const lastThirty = await this.LastThirtyToPatient.find({ patientId: patientId })
+            if (lastThirty) {
+                const resp = await this.LastThirtyToPatient.deleteMany({ patientId: patientId })
+            }
             for (var i = 0; i < lastThirtyList.length; i++) {
                 console.log("lastThirty" + lastThirtyList[i].lastThirtyItem)
                 let lastThirtyToPatient = new this.LastThirtyToPatient();
                 lastThirtyToPatient.lastThirtyId = lastThirtyList[i].lastThirtyItem;
                 lastThirtyToPatient.value = lastThirtyList[i].value;
                 lastThirtyToPatient.patientId = patientId;
-
-               
-
-                const lastThirty = await this.LastThirtyToPatient.find({ patientId: patientId, lastThirtyId: lastThirtyList[i].lastThirtyItem })
-                if (!lastThirty) {
-                    const response = await lastThirtyToPatient.save();
-                    console.log(`lastThirtyList response${JSON.stringify(response)}`)
-                }
-                else{
-                    console.log('lastThirtyItem')
-                    
-                    const resp = await this.LastThirtyToPatient.findOneAndDelete({ patientId: patientId, lastThirtyId: lastThirtyList[i].lastThirtyItem })
-                    const response = await lastThirtyToPatient.save();
-                    console.log(`lastThirtyList response${JSON.stringify(response)}`)
-                }
-
+                const response = await lastThirtyToPatient.save();
+                console.log(`lastThirtyList response${JSON.stringify(response)}`)
 
             }
+
             return res.status(200).json({ status: true, message: "success.", data: {} });
 
         } catch (error) {
