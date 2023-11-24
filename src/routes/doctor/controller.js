@@ -84,18 +84,18 @@ module.exports = new (class extends controller {
         }
     }
     // ************************************Guardian to Patient
-    async practitionerToPatient(req, guardianId) {
+    async practitionerToPatient(req, practitionerId) {
 
         try {
             console.log('practitionerToPatient')
-            let guardianToPatient = new GuardianToPatient();
-            guardianToPatient.guardian = guardianId;
-            guardianToPatient.patient = req.userData._id
+            let practitionerToPatient = new this.PractitionerToPatient();
+            practitionerToPatient.practitionerId = practitionerId;
+            practitionerToPatient.patientId = req.patientId
 
-            const response = await guardianToPatient.save();
+            const response = await practitionerToPatient.save();
             return response._id
         } catch (error) {
-            console.log(` lmp    guardianToPatient ${error}`)
+            console.log(` lmp practitionerToPatient ${error}`)
             return -1
             // return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }

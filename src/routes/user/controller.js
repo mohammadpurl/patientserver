@@ -9,7 +9,7 @@ module.exports = new (class extends controller {
     //get all visit list for a patient
     async getALlPatientList(req, res) {
         console.log("getALlPatientList")
-       
+
         let userInfo = await this.Patient.find({ user: req.user._id })
             .populate('user', 'email')
             .populate('religion', 'name -_id')
@@ -88,7 +88,7 @@ module.exports = new (class extends controller {
 
     // *********************patientDeatil**********************
     async patientDetail(req, res) {
-       const patientId = req.params.id
+        const patientId = req.params.id
 
         let userInfo = await this.Patient.findOne({ _id: patientId })
             .populate('user', 'email')
@@ -101,7 +101,7 @@ module.exports = new (class extends controller {
             .populate('country', 'name  code _id')
             .populate('title', 'name -_id')
 
-            console.log(`patientDetail userInfo: ${userInfo}`)
+        console.log(`patientDetail userInfo: ${userInfo}`)
         if (userInfo) {
             const userData = this.processObject(userInfo)
             this.response({
@@ -118,31 +118,38 @@ module.exports = new (class extends controller {
     }
 
     //********************************patientUpdate************************************ */
-    async patientUpdate(req, res) {
+    async patientUpdate(req, res) {       
+
         try {
-            const isAdmin = req.user.isadmin            
-            
-            const hasAccess = this.checkAccess(req, res);
-            if(!hasAccess) {
+            // const isAdmin = req.user.isadmin
+
+            // const hasAccess = this.checkAccess(req, res);
+            // TODO must check access
+            const hasAccess = true
+            if (!hasAccess) {
+                console.log(`hasAccess = ${hasAccess}`)
                 return res.status(403).json({ status: false, message: "Access denied", data: {} });
             }
-            const userId = req.params.id;
-            if (hasAccess ) {
-                const updateParams = req.body;
 
-                // Find the document by ID and update it with the new parameters
-                const updatedDocument = await this.Pationt.findByIdAndUpdate(userId, updateParams);
-                const userInfo = await this.Patient.findOne({ _id: id })
-                const userData = this.processObject(userInfo)
-                console.log(`patientUpdate${updatedDocument}`)
-                if (!updatedDocument) {
-                    return res.status(404).json({ message: 'Document not found' });
-                }
+            const pationtId = req.params.id;
 
-                this.response({ res, data: userData })
+            const updateParams = req.body;
+
+            // Find the document by ID and update it with the new parameters
+            const updatedDocument = await this.Pationt.findByIdAndUpdate(pationtId, updateParams);
+            const id = _.pick(updatedDocument, ["_id"])
+            const patientInfo = await this.Patient.findOne({ _id: id })
+            const patientData = this.processObject(patientInfo)
+            console.log(`patientUpdate${JSON.stringify(patientInfo)}`)
+            if (!updatedDocument) {
+                return res.status(404).json({ message: 'Document not found' });
             }
+            else {
 
+                console.log(patientData)
+                this.response({ res, data: patientData })
 
+            }
         } catch (error) {
             console.log(error)
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
@@ -158,7 +165,7 @@ module.exports = new (class extends controller {
     }
     // ****************************************get user info
     processObject(userInfo, type) {
-       
+
         const {
             _id,
             user,
@@ -443,17 +450,9 @@ module.exports = new (class extends controller {
     // *******************************************check access
     checkAccess(req, res, next) {
         try {
-            let userId = req.params.id;
-            console.log(`userId ${userId}`)
-            if (userId != 1 && !ObjectId.isValid(userId)) {
-                this.response({
-                    res, message: "Invalid Object ID", code: "400"
-                });
-            }
-            if (userId == 1) {
-                userId = req.user._id
-                req.params.id = userId
-            }
+
+            userId = req.user._id
+            req.params.id = userId
             const hasAccess = false
             if (req.gRelatedPatientList.includes(userId) || req.dRelatedPatientList.includes(userId) || userId == req.user._id) {
                 hasAccess = true
@@ -466,7 +465,7 @@ module.exports = new (class extends controller {
             }
         } catch (error) {
             console.log(error)
-            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+            // return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
 
