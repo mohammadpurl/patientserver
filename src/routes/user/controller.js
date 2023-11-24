@@ -8,25 +8,30 @@ const { default: mongoose } = require('mongoose');
 module.exports = new (class extends controller {
     //get all visit list for a patient
     async getALlPatientList(req, res) {
-        console.log("getALlPatientList")
+        try {
+            console.log("getALlPatientList")
 
-        let userInfo = await this.Patient.find({ user: req.user._id })
-            .populate('user', 'email')
-            .populate('religion', 'name -_id')
-            .populate('nationality', 'name -_id')
-            .populate('sexuality', 'name -_id')
-            .populate('mStatus', 'name -_id')
-            .populate('languages', 'name -_id')
-            .populate('education', 'name -_id')
-            .populate('title', 'name -_id')
-            .populate('country', 'name  code _id')
+            let userInfo = await this.Patient.find({ user: req.user._id })
+                .populate('user', 'email')
+                .populate('religion', 'name -_id')
+                .populate('nationality', 'name -_id')
+                .populate('sexuality', 'name -_id')
+                .populate('mStatus', 'name -_id')
+                .populate('languages', 'name -_id')
+                .populate('education', 'name -_id')
+                .populate('title', 'name _id')
+                .populate('country', 'name  code _id')
 
 
-        const processedObjects = userInfo?.map((userInfo) => this.processObject(userInfo, "show"));
-        this.response({
-            res, message: "",
-            data: processedObjects
-        });
+            const processedObjects = userInfo?.map((userInfo) => this.processObject(userInfo, "show"));
+            this.response({
+                res, message: "",
+                data: processedObjects
+            });
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
     }
     // *********************Register patients**********************
     async patientRegister(req, res) {
@@ -88,32 +93,37 @@ module.exports = new (class extends controller {
 
     // *********************patientDeatil**********************
     async patientDetail(req, res) {
-        const patientId = req.params.id
+        try {
+            const patientId = req.params.id
 
-        let userInfo = await this.Patient.findOne({ _id: patientId })
-            .populate('user', 'email')
-            .populate('religion', 'name code _id')
-            .populate('nationality', 'name code _id')
-            .populate('sexuality', 'name code _id')
-            .populate('mStatus', 'name code _id')
-            .populate('languages', 'name code _id')
-            .populate('education', 'name  code _id')
-            .populate('country', 'name  code _id')
-            .populate('title', 'name -_id')
+            let userInfo = await this.Patient.findOne({ _id: patientId })
+                .populate('user', 'email')
+                .populate('religion', 'name code _id')
+                .populate('nationality', 'name code _id')
+                .populate('sexuality', 'name code _id')
+                .populate('mStatus', 'name code _id')
+                .populate('languages', 'name code _id')
+                .populate('education', 'name  code _id')
+                .populate('country', 'name  code _id')
+                .populate('title', 'name _id')
 
-        console.log(`patientDetail userInfo: ${userInfo}`)
-        if (userInfo) {
-            const userData = this.processObject(userInfo)
-            this.response({
-                res, message: "",
-                data: userData
-            });
-        }
-        else {
-            this.response({
-                res, message: "",
-                data: {}
-            });
+            console.log(`patientDetail userInfo: ${userInfo}`)
+            if (userInfo) {
+                const userData = this.processObject(userInfo)
+                this.response({
+                    res, message: "",
+                    data: userData
+                });
+            }
+            else {
+                this.response({
+                    res, message: "",
+                    data: {}
+                });
+            }
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
 
@@ -165,85 +175,89 @@ module.exports = new (class extends controller {
     }
     // ****************************************get user info
     processObject(userInfo, type) {
-
-        const {
-            _id,
-            user,
-            firstName,
-            lastName,
-            title,
-            height,
-            weight,
-            mobileNumber,
-            address,
-            hoursWorked,
-            occupation,
-            birthDate,
-            religion,
-            nationality,
-            sexuality,
-            mStatus,
-            education,
-            country
-        } = userInfo;
-        console.log(`processObject userInfo:${userInfo}`)
-        const email = user?.email;
-        const religionId = religion?._id;
-        const nationalityId = nationality?._id;
-        const sexualityId = sexuality?._id;
-        const mStatusId = mStatus?._id;
-        const educationId = education?._id;
-        const countryId = country?._id;
-        const titleId = title?._id;
-        const fullName = `${firstName} ${lastName}`;
-        const BMI = weight / Math.pow(height, 2);
-        console.log("BMI" + BMI)
-        console.log(Math.pow(height, 2))
-        const age = this._calculateAge(birthDate);
-        const languages = []
-        userInfo?.languages?.map((language) => languages.push(language._id))
-
-        const userData = {
-            id: _id,
-            email,
-            firstName,
-            lastName,
-            title: titleId,
-            height,
-            weight,
-            mobileNumber,
-            address,
-            hoursWorked,
-            occupation,
-            birthDate,
-            religion: religionId,
-            nationality: nationalityId,
-            sexuality: sexualityId,
-            mStatus: mStatusId,
-            education: educationId,
-            age,
-            BMI,
-            languages,
-            fullName,
-            country: countryId
-        };
-        console.log(`processObject userData ${JSON.stringify(userData)}`)
-        if (type && type == "show") {
+        try {
+            const {
+                _id,
+                user,
+                firstName,
+                lastName,
+                title,
+                height,
+                weight,
+                mobileNumber,
+                address,
+                hoursWorked,
+                occupation,
+                birthDate,
+                religion,
+                nationality,
+                sexuality,
+                mStatus,
+                education,
+                country
+            } = userInfo;
+            console.log(`processObject userInfo:${userInfo}`)
+            const email = user?.email;
+            const religionId = religion?._id;
+            const nationalityId = nationality?._id;
+            const sexualityId = sexuality?._id;
+            const mStatusId = mStatus?._id;
+            const educationId = education?._id;
+            const countryId = country?._id;
+            const titleId = title?._id;
+            const fullName = `${firstName} ${lastName}`;
+            const BMI = weight / Math.pow(height, 2);
+            console.log("BMI" + BMI)
+            console.log(Math.pow(height, 2))
+            const age = this._calculateAge(birthDate);
             const languages = []
-            languages.map((language) => {
-                console.log(`processObject${language.name}`)
-                languages.push(language.name)
-            })
+            userInfo?.languages?.map((language) => languages.push(language._id))
 
-            userData.religion = religion?.name;
-            userData.nationality = nationality?.name;
-            userData.sexuality = sexuality?.name;
-            userData.mStatus = mStatus?.name;
-            userData.education = education?.name;
-            userData.languages = languages;
-            userData.title = title?.name
+            const userData = {
+                id: _id,
+                email,
+                firstName,
+                lastName,
+                title: titleId,
+                height,
+                weight,
+                mobileNumber,
+                address,
+                hoursWorked,
+                occupation,
+                birthDate,
+                religion: religionId,
+                nationality: nationalityId,
+                sexuality: sexualityId,
+                mStatus: mStatusId,
+                education: educationId,
+                age,
+                BMI,
+                languages,
+                fullName,
+                country: countryId
+            };
+            console.log(`processObject userData ${JSON.stringify(userData)}`)
+            if (type && type == "show") {
+                const languages = []
+                languages.map((language) => {
+                    console.log(`processObject${language.name}`)
+                    languages.push(language.name)
+                })
+
+                userData.religion = religion?.name;
+                userData.nationality = nationality?.name;
+                userData.sexuality = sexuality?.name;
+                userData.mStatus = mStatus?.name;
+                userData.education = education?.name;
+                userData.languages = languages;
+                userData.title = title?.name
+            }
+            return userData
+        } catch (error) {
+            return null
         }
-        return userData
+
     }
     // ************************************insert  Guardian
     async registerGuardian(req, res) {

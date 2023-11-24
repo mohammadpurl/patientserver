@@ -304,7 +304,7 @@ module.exports = new (class extends controller {
     async InsertMedication(req, res) {
         try {
 
-            
+            const resp = await this.Medication.deleteMany()
             for (var i = 0; i < MedicationList.length; i++) {
                 
                 let medication = new this.Medication();
@@ -369,8 +369,9 @@ module.exports = new (class extends controller {
     }
 
     async InserttWomenHistory(req, res) {
+        
         try {
-
+            
             for (var i = 0; i < WomenHistoryList.length; i++) {
                 
                 let womenHistory = new this.womenHistory();
@@ -404,7 +405,7 @@ module.exports = new (class extends controller {
 
     async InserttMedicalHistory(req, res) {
         try {
-
+            const resp = await this.MedicalHistory.deleteMany()
             for (var i = 0; i < medicalHistoryList.length; i++) {
                 
                 let medicalHistory = new this.MedicalHistory();

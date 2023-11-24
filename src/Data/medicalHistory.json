@@ -18,7 +18,8 @@
     {"name": "Pulmonary Embolism", "code": 14, "type": "boolean"},
     {"name": "Asthma", "code": 15, "type": "boolean"},
     {"name": "Emphysema", "code": 16, "type": "boolean"},
-
+    
+    {"name": "Stroke", "code": 7, "type": "boolean"},
     {"name": "Epilepsy (Seizures)", "code": 17, "type": "boolean"},
     {"name": "Cataracts ", "code": 18, "type": "boolean"},
     {"name": "Kidney Disease", "code": 19, "type": "boolean"},
@@ -36,8 +37,8 @@
     {"name": "Rheumatic Fever", "code": 27, "type": "boolean"},
     {"name": "Tuberculosis", "code": 28, "type": "boolean"},
     {"name": "HIV/AIDS", "code": 29, "type": "boolean"},
-    {"name": "OTHER STD", "code": 30, "type": "boolean"}
-
-
+    {"name": "OTHER STD", "code": 30, "type": "boolean"},
+    {"name": "Other Medical Conditions (please list):", "code": 31, "type": "test"}
+    
   ]
   
