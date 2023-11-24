@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
     conformIsDoctor:{type: Boolean, default: false},
     firstName:{type: String},
     lastName:{type: String},
-    title:{type: String}, 
+    title:{ type: mongoose.Schema.ObjectId, ref: "Title"},
     mobileNumber:{type: String},
     birthDate:{type: Date},  
     creatoreId:{ type: mongoose.Schema.ObjectId, ref: 'User'},

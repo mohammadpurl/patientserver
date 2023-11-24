@@ -79,17 +79,28 @@ module.exports = new (class extends controller {
 
     // *********************prifile**********************
     async profile(req, res) {
-        console.log(`req.user${req.user}`)
-        let userInfo = await this.Patient.findOne({ user: req.user._id })
-            .populate('user', 'email')
-        const userData = {
-            "email": userInfo?.user?.email,
-            "firstName": userInfo?.firstName,
-            "lastName": userInfo?.lastName
-        }
+        try {
+            console.log(`req.user${req.user}`)
+            let userInfo = await this.User.findOne({ _id: req.user._id })
+                .populate('title', 'name _id')
+            console.log(`userInfo in profile${JSON.stringify(userInfo)} `)
+            const userData = {
+                "email": userInfo?.email,
+                "firstName": userInfo?.firstName,
+                "lastName": userInfo?.lastName,                
+                "isadmin": userInfo?.isadmin,  
+                "isDoctor": userInfo?.isDoctor,  
+                "conformIsDoctor" : userInfo?.conformIsDoctor,                 
+                "mobileNumber": userInfo?.mobileNumber,  
+                "birthDate": userInfo?.birthDate,
+                "title": userInfo?.title?.name
+            }
 
-        console.log(`userData:${JSON.stringify(userInfo)}`)
-        this.response({ res, data: userData })
+            console.log(`userData:${JSON.stringify(userInfo)}`)
+            this.response({ res, data: userData })
+        } catch (error) {
+
+        }
     }
 
     // *********************patientDeatil**********************
@@ -134,41 +145,41 @@ module.exports = new (class extends controller {
             const userId = req.user._id
 
 
-            let userInfo = await this.Patient.findOne({ _id: patientId })        
-            const UserIdFromDB =  userInfo?.user?._id       
+            let userInfo = await this.Patient.findOne({ _id: patientId })
+            const UserIdFromDB = userInfo?.user?._id
             console.log(`patientDelete userInfo: ${userInfo}`)
 
             console.log(UserIdFromDB)
             console.log(userId)
 
             // TODO Must add Guardins
-            if(!userId.equals(UserIdFromDB) ){
-                this.response({                    
-                    res, 
+            if (!userId.equals(UserIdFromDB)) {
+                this.response({
+                    res,
                     message: "Access denied!",
                     code: "403",
                     data: {}
                 });
             }
-            else if(!userInfo){
-                 this.response({                    
-                    res, 
+            else if (!userInfo) {
+                this.response({
+                    res,
                     message: "data not found",
                     code: "404",
                     data: {}
                 });
             }
             else if (!userInfo.editable) {
-                 this.response({                    
-                    res, 
+                this.response({
+                    res,
                     message: "This visit cannot be deleted",
                     code: "403",
                     data: {}
                 });
             }
             else {
-                await this.Patient.findOneAndDelete({ _id: patientId })     
-                 this.response({
+                await this.Patient.findOneAndDelete({ _id: patientId })
+                this.response({
                     res, message: "seccess",
                     data: {}
                 });
