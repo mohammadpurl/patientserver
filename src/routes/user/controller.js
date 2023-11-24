@@ -60,10 +60,13 @@ module.exports = new (class extends controller {
                 "editable"
             ]),
             );
+
             patient.user = userId;
             const response = await patient.save();
+
             console.log(`patient register ${response}`)
             const respondePatient = this.processObject(response)
+            this.updateProfile();
             this.response({
                 res, message: "the user successfully registered",
                 data: respondePatient
@@ -81,20 +84,17 @@ module.exports = new (class extends controller {
     async profile(req, res) {
         try {
             console.log(`req.user${req.user}`)
-            let userInfo = await this.User.findOne({ _id: req.user._id })
+            let userInfo = await this.User.findById({ _id: req.user._id })
+                .populate('religion', 'name code _id')
+                .populate('nationality', 'name code _id')
+                .populate('sexuality', 'name code _id')
+                .populate('mStatus', 'name code _id')
+                .populate('languages', 'name code _id')
+                .populate('education', 'name  code _id')
+                .populate('country', 'name  code _id')
                 .populate('title', 'name _id')
             console.log(`userInfo in profile${JSON.stringify(userInfo)} `)
-            const userData = {
-                "email": userInfo?.email,
-                "firstName": userInfo?.firstName,
-                "lastName": userInfo?.lastName,                
-                "isadmin": userInfo?.isadmin,  
-                "isDoctor": userInfo?.isDoctor,  
-                "conformIsDoctor" : userInfo?.conformIsDoctor,                 
-                "mobileNumber": userInfo?.mobileNumber,  
-                "birthDate": userInfo?.birthDate,
-                "title": userInfo?.title?.name
-            }
+            const userData = this.processObject(userInfo)
 
             console.log(`userData:${JSON.stringify(userInfo)}`)
             this.response({ res, data: userData })
@@ -102,7 +102,28 @@ module.exports = new (class extends controller {
 
         }
     }
+    // *********************update prifile**********************
+    async updateProfile(req, res) {
+        try {
+            const user = new this.User(_.pick(req.body, [
+                "title",
+                "firstName",
+                "lastName",
+                "mobileNumber",
+                "birthDate",
+                "address",
+                "country",
+                "religion",
+                "mStatus",
+                "education",
+                "languages"
+            ]),
+            );
+            const profileInfo = await user.findByIdAndUpdate({ _id: req.user._id })
+        } catch (error) {
 
+        }
+    }
     // *********************patientDeatil**********************
     async patientDetail(req, res) {
         try {
