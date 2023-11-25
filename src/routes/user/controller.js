@@ -66,7 +66,7 @@ module.exports = new (class extends controller {
 
             console.log(`patient register ${response}`)
             const respondePatient = this.processObject(response)
-            this.updateProfile();
+            this.updateProfile(req, res);
             this.response({
                 res, message: "the user successfully registered",
                 data: respondePatient
@@ -105,7 +105,8 @@ module.exports = new (class extends controller {
     // *********************update prifile**********************
     async updateProfile(req, res) {
         try {
-            const user = new this.User(_.pick(req.body, [
+            console.log("updateProfile")
+            const user = _.pick(req.body, [
                 "title",
                 "firstName",
                 "lastName",
@@ -117,11 +118,13 @@ module.exports = new (class extends controller {
                 "mStatus",
                 "education",
                 "languages"
-            ]),
-            );
-            const profileInfo = await user.findByIdAndUpdate({ _id: req.user._id })
+            ]);
+           
+            console.log(`updateProfile ${req.user._id} `)           
+            const profileInfo = await this.User.findByIdAndUpdate( {_id:req.user._id}, user )
+            console.log(` profileInfo ${profileInfo}`)
         } catch (error) {
-
+            console.log(error)
         }
     }
     // *********************patientDeatil**********************
