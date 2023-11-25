@@ -118,8 +118,7 @@ module.exports = new (class extends controller {
                 "mStatus",
                 "education",
                 "languages"
-            ]);
-           
+            ]);           
             console.log(`updateProfile ${req.user._id} `)           
             const profileInfo = await this.User.findByIdAndUpdate( {_id:req.user._id}, user )
             console.log(` profileInfo ${profileInfo}`)
@@ -476,16 +475,16 @@ module.exports = new (class extends controller {
             console.log(`medicalHisList${JSON.stringify(medicalHisList)}`)
             const patientId = req.body?.patientId
             console.log(`patientId ${patientId}`)
-            const hasHistory = await this.medicalHisToPatient.find({ patientId: patientId, medicalHisId: medicalHisList[i].medicalHisId })
+            const hasHistory = await this.medicalHisToPatient.find({ patientId: patientId})
             if (hasHistory) {
                 const resp = await this.medicalHisToPatient.deleteMany({ patientId: patientId })
-            }
-            for (var i = 0; i < medicalHisList?.length; i++) {
-                console.log("medicalHisList" + medicalHisList[i].value)
-                let medicalHisToPatient = new this.medicalHisToPatient();
-                medicalHisToPatient.medicalHisId = medicalHisList[i].medicalHisId;
-                medicalHisToPatient.value = medicalHisList[i].value;
-                medicalHisToPatient.patientId = patientId;
+            }            
+            for(const {medicalHisId, value} of medicalHisList){
+                const medicalHisToPatient = new this.medicalHisToPatient({
+                    medicalHisId,
+                    value,
+                    patientId
+                });
                 const response = await medicalHisToPatient.save();
                 console.log(`medicalHisToPatient in else response${JSON.stringify(response)}`)
 
