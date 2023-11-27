@@ -3,27 +3,31 @@ const router = express.Router();
 const controller = require('./controller');
 const validator = require('./validator')
 
+
 router.post(
-    '/register',
+    '/guardians',
     validator.dgRegisterValidation(),
     // controller.validate,
-    controller.registerPractitioner
+    controller.registerGuardian
+
+
 )
 
 router.get(
-    '/relatedPractitioner/:id',
-    // validator.paRegisterValidation(),
+    '/guardians',
+    validator.dgRegisterValidation(),
     // controller.validate,
-    controller.relatedPractitionerToPatient
-)
-router.get(
-    '/practitioners',
-    // validator.paRegisterValidation(),
-    // controller.validate,
-    controller.getALlDoctors
-)
+    controller.getAllGuardian
 
 
+)
+router.post(
+    '/guardiantopatient',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.guardianToPatient
+
+)
 
 
 

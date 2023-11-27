@@ -47,23 +47,6 @@ router.put(
     controller.patientUpdate
 
 )
-router.post(
-    '/guardians',
-    validator.dgRegisterValidation(),
-    // controller.validate,
-    controller.registerGuardian
-
-
-)
-
-router.get(
-    '/guardians',
-    validator.dgRegisterValidation(),
-    // controller.validate,
-    controller.getAllGuardian
-
-
-)
 
 router.get(
     '/profile',
@@ -74,13 +57,7 @@ router.get(
 )
 
 
-router.post(
-    '/guardiantopatient',
-    // validator.loginValidation(),
-    // controller.validate,
-    controller.guardianToPatient
 
-)
 router.post(
     '/medications',
     // validator.loginValidation(),

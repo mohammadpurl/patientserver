@@ -118,9 +118,9 @@ module.exports = new (class extends controller {
                 "mStatus",
                 "education",
                 "languages"
-            ]);           
-            console.log(`updateProfile ${req.user._id} `)           
-            const profileInfo = await this.User.findByIdAndUpdate( {_id:req.user._id}, user )
+            ]);
+            console.log(`updateProfile ${req.user._id} `)
+            const profileInfo = await this.User.findByIdAndUpdate({ _id: req.user._id }, user)
             console.log(` profileInfo ${profileInfo}`)
         } catch (error) {
             console.log(error)
@@ -346,81 +346,7 @@ module.exports = new (class extends controller {
         }
 
     }
-    // ************************************insert  Guardian
-    async registerGuardian(req, res) {
-        try {
-            console.log("registerGuardian")
-            let id = await this.saveGuardianInDB(req, res);
-            req.body.guardianId = id;
-            const gToP = await this.guardianToPatient(req, id)
-            if (gToP === -1) {
-                return res.status(500).json({ status: false, message: "something went wrong", data: error });
-
-            }
-            else {
-                this.response({
-                    res, message: " successfully gto registered",
-                    data: id
-                });
-            }
-        } catch (error) {
-            console.log(error)
-            return res.status(500).json({ status: false, message: "something went wrong", data: error });
-        }
-
-    }
-    //********************************saveGuardianInDB************************************ */
-    async saveGuardianInDB(req) {
-        try {
-            console.log("saveGuardianInDB")
-            let user = await this.User.findOne({ email: req.body.email })
-            if (!user) {
-                user = new this.User(_.pick(req.body, ["email", "password", "isDoctor", "firstName", "lastName", "title", "mobileNumber"]));
-                const salt = await bcrypt.genSalt(10);
-                user.password = await bcrypt.hash(user.mobileNumber, salt);
-                const response = await user.save();
-                console.log(`saveGuardianoInDB${response}`)
-            }
-            const creatorId = req.userData._id
-            user.creatoreId = creatorId;
-
-            const id = _.pick(user, ["_id"])
-            console.log("finish saveGuardianoInDB")
-            return id
-        } catch (error) {
-            console.log(`saveGuardianoInDB LMP:${error}`)
-
-        }
-    }
-    // ************************************Guardian to Patient
-    async guardianToPatient(req, guardianId) {
-
-        try {
-            console.log('guardianToPatient')
-            let guardianToPatient = new this.GuardianToPatient();
-            guardianToPatient.guardian = guardianId;
-            guardianToPatient.patient = req.user._id
-
-            const response = await guardianToPatient.save();
-            return response._id
-        } catch (error) {
-            console.log(` lmp    guardianToPatient ${error}`)
-            return -1
-            // return res.status(500).json({ status: false, message: "something went wrong", data: error });
-        }
-    }
-    // **********************************getAllGuardian*****************************
-    async getAllGuardian(req, res) {
-        try {
-            const patientId = req.params.id
-            const guardians = await this.GuardianToPatient.find({ patient: patientId })
-                .populate('guardian', 'email firstName lastName mobileNumber title')
-            this.response({ res, data: guardians })
-        } catch (error) {
-            console.log(`getAllGuardian${error}`);
-            return res.status(500).json({ status: false, message: "something went wrong", data: error });
-        }
-    }
+    
     // ************************InsertMedicationToPatient****************************
     async insertMedicationToPatient(req, res) {
         try {
@@ -433,18 +359,18 @@ module.exports = new (class extends controller {
             const hasMedicationValue = await this.MedicationToPatient.find({ patientId: patientId })
             if (hasMedicationValue) {
                 const resp = await this.MedicationToPatient.deleteMany({ patientId: patientId })
-            }
-
-            for (var i = 0; i < medicationList.length; i++) {
-                console.log("medication" + medicationList[i].howManydays)
-                let medicationToPatient = new this.MedicationToPatient();
-                medicationToPatient.drugStrength = medicationList[i].drugStrength;
-                medicationToPatient.dosePerDay = medicationList[i].dosePerDay;
-                medicationToPatient.patientId = patientId;
-                medicationToPatient.medicationId = medicationList[i].medicationId;
-                medicationToPatient.howManydays = medicationList[i].howManydays;
+            }      
+            for (const { medicationId, howManydays, dosePerDay, drugStrength} of medicationList) {
+                const medicationToPatient = new this.MedicationToPatient({
+                    howManydays,
+                    dosePerDay,
+                    drugStrength,
+                    patientId,
+                    medicationId
+                });
                 const response = await medicationToPatient.save();
-                console.log(`medicationList response${JSON.stringify(response)}`)
+                console.log(`medicalHisToPatient in else response${JSON.stringify(response)}`)
+
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 
@@ -460,6 +386,8 @@ module.exports = new (class extends controller {
             console.log(`getAllMedication patientId ${patientId}`)
             const medication = await this.MedicationToPatient.find({ patientId: patientId })
                 .populate('medicationId', 'name code')
+            console.log(`getAllMedication medication ${medication}`)
+            
             this.response({ res, data: medication })
         } catch (error) {
             console.log(`Medication${error}`);
@@ -475,11 +403,11 @@ module.exports = new (class extends controller {
             console.log(`medicalHisList${JSON.stringify(medicalHisList)}`)
             const patientId = req.body?.patientId
             console.log(`patientId ${patientId}`)
-            const hasHistory = await this.medicalHisToPatient.find({ patientId: patientId})
+            const hasHistory = await this.medicalHisToPatient.find({ patientId: patientId })
             if (hasHistory) {
                 const resp = await this.medicalHisToPatient.deleteMany({ patientId: patientId })
-            }            
-            for(const {medicalHisId, value} of medicalHisList){
+            }
+            for (const { medicalHisId, value } of medicalHisList) {
                 const medicalHisToPatient = new this.medicalHisToPatient({
                     medicalHisId,
                     value,
@@ -499,7 +427,7 @@ module.exports = new (class extends controller {
     // **********************************getAllMedicalHistory*****************************
     async getAllMedicalHistory(req, res) {
         try {
-            const patientId = req.body?.patientId
+            const patientId = req.params?.id
             const medicalHisory = await this.medicalHisToPatient.find({ patientId: patientId })
                 .populate('medicalHisId', 'name code')
             this.response({ res, data: medicalHisory })

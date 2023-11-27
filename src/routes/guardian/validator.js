@@ -63,7 +63,7 @@ module.exports = new class {
 
     }
     dgRegisterValidation() {        
-        const result = [
+        return [
             body('firstName')
                 .isLength({ min: 3 })
                 .withMessage('firstName must be at least 3 chars long')
@@ -96,9 +96,6 @@ module.exports = new class {
                 .escape()
           
         ]
-        console.log(`dgvalidation result ${result}`)
-        return result
-
 
     }
     hospitalValidation() {
