@@ -19,7 +19,7 @@ async function isLoggined(req, res, next) {
         req.token = token;
 
         const user = await User.findById(decoded.sub)
-        console.log(req)
+       
         console.log(user)
         req.user = user
         next();

@@ -96,7 +96,7 @@ module.exports = new class {
                 .escape()
           
         ]
-        console.log(`dgvalidation result ${result}`)
+       
         return result
 
 

@@ -4,6 +4,7 @@ const _ = require("lodash");
 const bcrypt = require("bcrypt");
 const GuardianToPatient = require("./../../modeles/guardianTopatient");
 const { json } = require("stream/consumers");
+const { default: mongoose } = require("mongoose");
 
 module.exports = new (class extends controller {
   // *********************Get all Doctors**********************
@@ -23,14 +24,13 @@ module.exports = new (class extends controller {
           message: "",
           data: userInfo,
         });
-      }
-      else{
+      } else {
         this.response({
-            res,
-            code:"403",
-            message: "Access Denied",
-            data: [],
-          });
+          res,
+          code: "403",
+          message: "Access Denied",
+          data: [],
+        });
       }
     } catch (error) {
       console.log(error);
@@ -81,7 +81,7 @@ module.exports = new (class extends controller {
       const creatorId = req.userData._id;
       user = new this.User(
         _.pick(req.body, [
-          "email",          
+          "email",
           "isDoctor",
           "firstName",
           "lastName",
@@ -99,7 +99,9 @@ module.exports = new (class extends controller {
       return id;
     } catch (error) {
       console.log(`savePractitionerInDB LMP:${error}`);
-      return res.status(500).json({ status: false, message: "something went wrong", data: error });
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
     }
   }
   // ************************************Guardian to Patient
@@ -107,31 +109,27 @@ module.exports = new (class extends controller {
     try {
       console.log("practitionerToPatient");
       const patientId = req.body.patientId;
-    //   const practitionertopatient =  await this.PractitionerToPatient.find({practitionerId ,patientId })
-      const practitionerInfo = await this.PractitionerToPatient.find({
-        patientId: patientId,
-        practitionerId: practitionerId
-      })
-      console.log(`practitionerInfo is: ${practitionerInfo}`)
-    //   TODO it's not working
-      if(practitionerInfo){
-        console.log(`practitionerInfo._id ${practitionerInfo}`)
-        return practitionerInfo._id
+      const practitionertopatient =  await this.PractitionerToPatient.find({practitionerId:practitionerId ,patientId:patientId })
+      // const practitionerInfo = await this.PractitionerToPatient.find({
+      //   patientId: patientId,
+      //   practitionerId: practitionerId,
+      // });
+      console.log(`practitionerInfo is: ${practitionertopatient}`);
+      //   TODO it's not working
+      if (practitionerInfo) {
+        console.log(`practitionerInfo._id ${practitionerInfo}`);
+        return practitionertopatient._id;
       }
-      let practitionerToPatient = new this.PractitionerToPatient(
-        {
-            practitionerId,
-            patientId
-        }
-      );
-      
+      let practitionerToPatient = new this.PractitionerToPatient({
+        practitionerId,
+        patientId,
+      });
 
       const response = await practitionerToPatient.save();
       return response._id;
     } catch (error) {
       console.log(` lmp practitionerToPatient ${error}`);
       return -1;
-      
     }
   }
   // ************************InsertMedicationToPatient****************************
@@ -139,18 +137,15 @@ module.exports = new (class extends controller {
     try {
       console.log("relatedPractitionerToPatient");
       const patientId = req.params?.id;
+      const isValid = await this.validatePatientId(patientId);
+      // console.log(`relatedPractitionerToPatient ${isValid}`)
       let practitionerInfo = await this.PractitionerToPatient.find({
         patientId: patientId,
       }).populate(
         "practitionerId",
         "email firstName lastName  mobileNumber isDoctor conformIsDoctor _id"
       );
-
-      console.log(
-        `relatedPractitionerToPatient response ${JSON.stringify(
-          practitionerInfo
-        )}`
-      );
+    
       this.response({
         res,
         message: "",
@@ -161,6 +156,29 @@ module.exports = new (class extends controller {
       return res
         .status(500)
         .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  async deleterelatedPractitioner(req,res){
+    try {
+      const resp = await this.Medication.deleteMany()
+    } catch (error) {
+      console.log(`deleterelatedPractitioner LMP:${error}`);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  async validatePatientId(patientId) {
+    try {
+      const patientInfo = await this.Patient.findOne({ _id: patientId });
+      const isValid = mongoose.isValidObjectId(patientId)
+      if (!patientInfo && !isValid) {
+        return -1;
+      } else {
+        return 1;
+      }
+    } catch (error) {
+        console.log(error)
     }
   }
 })();

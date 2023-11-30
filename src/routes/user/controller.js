@@ -94,6 +94,7 @@ module.exports = new (class extends controller {
                 .populate('country', 'name  code _id')
                 .populate('title', 'name _id')
             console.log(`userInfo in profile${JSON.stringify(userInfo)} `)
+
             const userData = this.processObject(userInfo)
 
             console.log(`userData:${JSON.stringify(userInfo)}`)
@@ -413,6 +414,7 @@ module.exports = new (class extends controller {
                     value,
                     patientId
                 });
+                console.log(`medicalHisToPatient ${JSON.stringify(medicalHisToPatient)}`)
                 const response = await medicalHisToPatient.save();
                 console.log(`medicalHisToPatient in else response${JSON.stringify(response)}`)
 
