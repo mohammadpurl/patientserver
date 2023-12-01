@@ -2,13 +2,12 @@ const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
 
 const GuardianToPatientSchema = new mongoose.Schema({
-    guardian: {
+    guardianId: {
         type: mongoose.Schema.ObjectId, ref: 'User' , require: true
     },
-    patient: {
+    patientId: {
         type: mongoose.Schema.ObjectId, ref: 'Patient', require: true
     },
-
 
 })
 GuardianToPatientSchema.plugin(timestamp);

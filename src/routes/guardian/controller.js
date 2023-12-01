@@ -10,19 +10,35 @@ module.exports = new (class extends controller {
     async registerGuardian(req, res) {
         try {
             console.log("registerGuardian")
-            let id = await this.saveGuardianInDB(req, res);
+            const guardianList = req?.body?.guardianList;
+            for (const {
+              email,
+              isDoctor,
+              firstName,
+              lastName,
+              title,
+              mobileNumber,
+            } of guardianList) {
+              const newGuardian = new this.User({
+                email,
+                isDoctor,
+                firstName,
+                lastName,
+                title,
+                mobileNumber,
+              });
+              const creatorId = req.user._id;
+
+              newGuardian.creatorId = creatorId
+            let id = await this.saveGuardianInDB(newGuardian, res);
             req.body.guardianId = id;
             const gToP = await this.guardianToPatient(req, id)
-            if (gToP === -1) {
-                return res.status(500).json({ status: false, message: "something went wrong", data: error });
-
-            }
-            else {
-                this.response({
-                    res, message: " successfully gto registered",
-                    data: id
-                });
-            }
+            }           
+            this.response({
+                res, message: " successfully gto registered",
+                data: {}
+            });
+            
         } catch (error) {
             console.log(error)
             return res.status(500).json({ status: false, message: "something went wrong", data: error });
@@ -30,22 +46,23 @@ module.exports = new (class extends controller {
 
     }
     //********************************saveGuardianInDB************************************ */
-    async saveGuardianInDB(req) {
+    async saveGuardianInDB(newGuardian) {
         try {
             console.log("saveGuardianInDB")
-            let user = await this.User.findOne({ email: req.body.email })
-            if (!user) {
-                user = new this.User(_.pick(req.body, ["email", "password", "isDoctor", "firstName", "lastName", "title", "mobileNumber"]));
-                const salt = await bcrypt.genSalt(10);
-                user.password = await bcrypt.hash(user.mobileNumber, salt);
-                const response = await user.save();
-                console.log(`saveGuardianoInDB${response}`)
+            let user = await this.User.findOne({ email: newGuardian?.email })
+            if(user)
+            {
+                const id = _.pick(user, ["_id"])
+                console.log("finish saveGuardianoInDB")
+                return id
             }
-            const creatorId = req.userData._id
-            user.creatoreId = creatorId;
+            const salt = await bcrypt.genSalt(10);
+            newGuardian.password = await bcrypt.hash(newGuardian.mobileNumber, salt);
+            const response = await newGuardian.save();
+            console.log(`saveGuardianoInDB${response}`)
+               
 
-            const id = _.pick(user, ["_id"])
-            console.log("finish saveGuardianoInDB")
+            const id = _.pick(response, ["_id"])           
             return id
         } catch (error) {
             console.log(`saveGuardianoInDB LMP:${error}`)
@@ -57,11 +74,24 @@ module.exports = new (class extends controller {
 
         try {
             console.log('guardianToPatient')
-            let guardianToPatient = new this.GuardianToPatient();
-            guardianToPatient.guardian = guardianId;
-            guardianToPatient.patient = req.user._id
-
+            const patientId = req.body.patientId;
+            const guardiantopatient = await this.GuardianToPatient.findOne({
+                guardianId: guardianId,
+                patientId: patientId,
+            });
+            console.log(`guardiantopatient is: ${guardiantopatient}`);
+            
+            if (guardiantopatient) {
+                console.log(`guardiantopatient._id ${guardiantopatient}`);
+                return guardiantopatient._id;
+             }
+            const guardianToPatient = new this.GuardianToPatient({
+                guardianId:guardianId,
+                patientId:patientId
+            });
+           
             const response = await guardianToPatient.save();
+            console.log(`guardianToPatient ${guardianToPatient}`)
             return response._id
         } catch (error) {
             console.log(` lmp    guardianToPatient ${error}`)

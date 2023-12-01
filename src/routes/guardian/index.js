@@ -5,7 +5,7 @@ const validator = require('./validator')
 
 
 router.post(
-    '/guardians',
+    '/register',
     validator.dgRegisterValidation(),
     // controller.validate,
     controller.registerGuardian

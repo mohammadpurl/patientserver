@@ -44,25 +44,37 @@ module.exports = new (class extends controller {
   async registerPractitioner(req, res) {
     try {
       console.log("registerDoctor");
-
-      let id = await this.savePractitionerInDB(req, res);
-      req.body.practitionerId = id;
-
-      const dToP = await this.practitionerToPatient(req, id);
-
-      if (dToP === -1) {
-        return res.status(500).json({
-          status: false,
-          message: "something went wrong",
-          data: error,
+      const practitionerList = req?.body?.practitionerList;
+      for (const {
+        email,
+        isDoctor,
+        firstName,
+        lastName,
+        title,
+        mobileNumber,
+      } of practitionerList) {
+        const newPractitioner = new this.User({
+          email,
+          isDoctor,
+          firstName,
+          lastName,
+          title,
+          mobileNumber,
         });
-      } else {
-        this.response({
-          res,
-          message: " successfully gto registered",
-          data: id,
-        });
+        const creatorId = req.user._id;
+        newPractitioner.creatoreId = creatorId;
+        let id = await this.savePractitionerInDB(newPractitioner, res);
+        console.log(`PractitionerID ${id}`)
+        req.body.practitionerId = id;
+
+        const dToP = await this.practitionerToPatient(req, id);
       }
+      this.response({
+        res,
+        message: " successfully pto registered",
+        data: {},
+      });
+      
     } catch (error) {
       console.log(error);
       return res
@@ -71,30 +83,23 @@ module.exports = new (class extends controller {
     }
   }
   //********************************patientUpdate************************************ */
-  async savePractitionerInDB(req) {
+  async savePractitionerInDB(newPractitioner, req, res) {
     try {
-      console.log("savePractitionerInDB");
-      let user = await this.User.findOne({ email: req.body.email });
+     
+      let user = await this.User.findOne({ email: newPractitioner?.email });
+      console.log(`savePractitionerInDB user  ${user}`);
       if (user) {
         return user._id;
-      }
-      const creatorId = req.userData._id;
-      user = new this.User(
-        _.pick(req.body, [
-          "email",
-          "isDoctor",
-          "firstName",
-          "lastName",
-          "title",
-          "mobileNumber",
-        ])
-      );
-      user.creatoreId = creatorId;
+      }      
+
       const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(user.mobileNumber, salt);
-      const response = await user.save();
+      newPractitioner.password = await bcrypt.hash(
+        newPractitioner.mobileNumber,
+        salt
+      );
+      const response = await newPractitioner.save();
       console.log(`savePractitionerInDB rsponse${response}`);
-      const id = _.pick(user, ["_id"]);
+      const id = _.pick(response, ["_id"]);
       console.log("finish savePractitionerInDB");
       return id;
     } catch (error) {
@@ -109,15 +114,15 @@ module.exports = new (class extends controller {
     try {
       console.log("practitionerToPatient");
       const patientId = req.body.patientId;
-      const practitionertopatient =  await this.PractitionerToPatient.find({practitionerId:practitionerId ,patientId:patientId })
-      // const practitionerInfo = await this.PractitionerToPatient.find({
-      //   patientId: patientId,
-      //   practitionerId: practitionerId,
-      // });
+      const practitionertopatient = await this.PractitionerToPatient.findOne({
+        practitionerId: practitionerId,
+        patientId: patientId,
+      });
+      
       console.log(`practitionerInfo is: ${practitionertopatient}`);
-      //   TODO it's not working
-      if (practitionerInfo) {
-        console.log(`practitionerInfo._id ${practitionerInfo}`);
+     
+      if (practitionertopatient) {
+        console.log(`practitionertopatient._id ${practitionertopatient}`);
         return practitionertopatient._id;
       }
       let practitionerToPatient = new this.PractitionerToPatient({
@@ -145,7 +150,7 @@ module.exports = new (class extends controller {
         "practitionerId",
         "email firstName lastName  mobileNumber isDoctor conformIsDoctor _id"
       );
-    
+
       this.response({
         res,
         message: "",
@@ -158,9 +163,9 @@ module.exports = new (class extends controller {
         .json({ status: false, message: "something went wrong", data: error });
     }
   }
-  async deleterelatedPractitioner(req,res){
+  async deleterelatedPractitioner(req, res) {
     try {
-      const resp = await this.Medication.deleteMany()
+      const resp = await this.Medication.deleteMany();
     } catch (error) {
       console.log(`deleterelatedPractitioner LMP:${error}`);
       return res
@@ -171,14 +176,14 @@ module.exports = new (class extends controller {
   async validatePatientId(patientId) {
     try {
       const patientInfo = await this.Patient.findOne({ _id: patientId });
-      const isValid = mongoose.isValidObjectId(patientId)
+      const isValid = mongoose.isValidObjectId(patientId);
       if (!patientInfo && !isValid) {
         return -1;
       } else {
         return 1;
       }
     } catch (error) {
-        console.log(error)
+      console.log(error);
     }
   }
 })();
