@@ -501,5 +501,44 @@ module.exports = new (class extends controller {
             // return res.status(500).json({ status: false, message: "something went wrong", data: error });
         }
     }
+    // *******************************************Add pain area
+    async registerePainArea(req, res) {
+        try {
+            const patientId = req.body?.patientId
+            console.log(`patientId${patientId}`)
+            let hurtArea = await this.HurtArea.find({ patientId: patientId })
+            if (hurtArea) {
+                const resp = await this.HurtArea.deleteMany({ patientId: patientId })
+            }
+            const { areaName, rate, hurtTypeId  } = req.body
+            hurtArea = new this.HurtArea({
+                areaName,
+                rate,
+                patientId,
+                hurtTypeId
+            });
+            console.log(`hurtArea ${JSON.stringify(hurtArea)}`)
+            const response = await hurtArea.save();
+            console.log(`HurtArea  response${JSON.stringify(response)}`)
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+            
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
+    }
+    // *******************************************Get pain area
+    async getAllPainArea(req, res) {
+        try {
+            const patientId = req.params?.id
+            const painAreas = await this.HurtArea.find({ patientId: patientId })
+                .populate('hurtTypeId', 'name code')
+            this.response({ res, data: painAreas })
+        } catch (error) {
+            console.log(`painAreas${error}`);
+            return res.status(500).json({ status: false, message: "something went wrong", data: error });
+        }
+    }
+
 
 })();

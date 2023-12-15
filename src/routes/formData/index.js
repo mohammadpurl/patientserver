@@ -71,6 +71,15 @@ router.get(
     '/titles',
     controller.GetAllTitles)
 
+
+router.post(
+    '/insertHurtType',
+    controller.InsertHurtType)
+
+router.get(
+    '/hurtTypes',
+    controller.GetAllHurtTypes)
+
 router.post(
     '/insertmedication',
     controller.InsertMedication)

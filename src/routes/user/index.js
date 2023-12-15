@@ -103,7 +103,21 @@ router.get(
     controller.getAllMedicalHistory
 
 )
+router.post(
+    '/hurtArea',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.registerePainArea
 
+)
+
+router.get(
+    '/hurtArea/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getAllPainArea
+
+)
 
 
 

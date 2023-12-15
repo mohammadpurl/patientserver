@@ -14,6 +14,7 @@ const MedicationList = require('./../../Data/medication.json')
 const LastThirtyList = require('./../../Data/lastThirty.json')
 const WomenHistoryList = require('./../../Data/womenHistory.json')
 const medicalHistoryList = require('./../../Data/medicalHistory.json')
+const hurtTypeList = require("./../../Data/hurtType.json")
 
 require('dotenv').config();
 // const redis_client = require('./../../../redis_connect');
@@ -280,6 +281,37 @@ module.exports = new (class extends controller {
 
                 const titleItem = await title.save();
             }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // *********************************     Hurt type ************************************
+    async GetAllHurtTypes(req, res) {
+        try {
+
+            let hurtType = await this.HurtType.find()
+            this.response({
+                res, message: "",
+                data: hurtType
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertHurtType(req, res) {
+        try {
+            for (const { code, name } of hurtTypeList) {
+                const hurtTypeItem = new this.HurtType({
+                    code,
+                    name
+                });                
+                const response = await hurtTypeItem.save();                
+
+            }            
             return res.status(200).json({ status: true, message: "success.", data: {} });
 
         } catch (error) {
