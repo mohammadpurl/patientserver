@@ -36,7 +36,6 @@ module.exports = new (class extends controller {
     // *********************Register patients**********************
     async patientRegister(req, res) {
         try {
-
             const userId = req.user._id
             console.log("patientRegister")
             let patient = new this.Patient(_.pick(req.body, [

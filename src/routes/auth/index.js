@@ -14,6 +14,12 @@ router.post(
 
 )
 router.post(
+    '/verifycode',    
+    controller.checkVerifyCode
+
+)
+
+router.post(
     '/login',
     validator.loginValidation(),
     controller.validate,

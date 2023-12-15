@@ -24,6 +24,7 @@ const MedicalHistory = require('./../modeles/medicalHistory');
 const medicalHisToPatient = require('./../modeles/medicalHisToPatient');
 const GuardianToPatient = require('./../modeles/guardianTopatient');
 const PractitionerToPatient = require('./../modeles/practitionerTopatient');
+const Hospital = require('./../modeles/hospital')
 
 module.exports = class{
     constructor(){
@@ -49,6 +50,7 @@ module.exports = class{
         this.medicalHisToPatient = medicalHisToPatient;
         this.GuardianToPatient = GuardianToPatient;
         this.PractitionerToPatient = PractitionerToPatient;
+        this.Hospital = Hospital;
     }
     validationBody(req,res){
         console.log('validationBody')

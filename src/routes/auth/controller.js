@@ -6,31 +6,86 @@ const User = require("./../../modeles/user");
 const GuardianToPatient = require("./../../modeles/guardianTopatient");
 const PractitionerToPatient = require("./../../modeles/practitionerTopatient");
 const Patient = require("./../../modeles/patient");
-
+const email = require("./../mail");
 require("dotenv").config();
 // const redis_client = require('./../../../redis_connect');
 
 module.exports = new (class extends controller {
   async register(req, res, next) {
+
+    console.log(req)
     let user = await this.User.findOne({ email: req.body.email });
+
     if (user) {
       return this.response({
         res,
         code: 400,
         message: "this user already register",
       });
-    }
-
-    user = new this.User(_.pick(req.body, ["email", "password", "isDoctor"]));
+    }    
+    user = new this.User({
+      email: req.body.email,
+      password: req.body.password,
+      isDoctor: req.body.isDoctor
+    });
+    
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt);
     const response = await user.save();
     console.log(response);
-    // this.response({
-    //     res, message: "the user successfully registered",
-    //     data: _.pick(user, ["_id",  "email"])
-    // });
-    res.redirect(307, "/api/auth//login");
+
+    email.sendMail(user.email);
+    this.response({
+      res,
+      message: "the user successfully registered",
+      data: {
+        _id:user._id,
+        email:user.email
+      },
+    });
+
+    // res.redirect(307, "/api/auth//login");
+  }
+  // *********************check verification code**********************
+  async checkVerifyCode(req, res) {
+    try {
+      console.log(req.body.email)
+      let user = await this.User.findOne({ email: req.body.email });
+      console.log(user)
+      if (user) {
+        const verifyCode = await email.generateVerificationCode(req.body.email);
+        console.log(verifyCode)
+        console.log(req.body.verifyCode)
+
+        if (verifyCode === req.body.verifyCode) {
+          this.response({
+            res,
+            message: "Code entered correctly",
+            data: _.pick(user, ["_id", "email"]),
+          });
+        } else {
+          this.response({
+            res,
+            message: "There was a problem with the code",
+            data: _.pick(user, ["_id", "email"]),
+          });
+        }
+      }
+      else{
+        return res.status(400).json({
+          status: false,
+          message: "usr not found",
+          data: {},
+        });
+      }
+    } catch (error) {
+      console.log(error)
+      return res.status(500).json({
+        status: false,
+        message: "something went wrong",
+        data: error,
+      });
+    }
   }
   // *********************login**********************
   async login(req, res) {
@@ -111,13 +166,11 @@ module.exports = new (class extends controller {
 
       return res.json({ status: true, message: "success." });
     } catch (error) {
-      return res
-        .status(401)
-        .json({
-          status: true,
-          message: "Your session is not valid.",
-          data: error,
-        });
+      return res.status(401).json({
+        status: true,
+        message: "Your session is not valid.",
+        data: error,
+      });
     }
   }
   async GetAccessToken(req, res) {
@@ -167,33 +220,27 @@ module.exports = new (class extends controller {
       const user = await this.User.findById(decoded.sub);
       console.log(`lmp verifyRefreshToken user${user}`);
       if (!user || !user.lastRefreshToken) {
-        return res
-          .status(401)
-          .json({
-            status: false,
-            message: "Invalid request. Token is not in store.",
-          });
+        return res.status(401).json({
+          status: false,
+          message: "Invalid request. Token is not in store.",
+        });
       }
-      
+
       if (user.lastRefreshToken != token) {
         console.log("user.lastRefreshToken != token");
-        return res
-          .status(401)
-          .json({
-            status: false,
-            message: "Invalid request. Token is not same in store.",
-          });
+        return res.status(401).json({
+          status: false,
+          message: "Invalid request. Token is not same in store.",
+        });
       }
-      
+
       next();
     } catch (error) {
-      return res
-        .status(401)
-        .json({
-          status: false,
-          message: "Your session is not valid.Relogin now",
-          data: error,
-        });
+      return res.status(401).json({
+        status: false,
+        message: "Your session is not valid.Relogin now",
+        data: error,
+      });
     }
   }
 })();

@@ -9,30 +9,9 @@ const { default: mongoose } = require("mongoose");
 
 module.exports = new (class extends controller {
   // *********************Get all Doctors**********************
-  async getALlDoctors(req, res) {
+  async getAllHospital(req, res) {
     try {
-      const isAdmin = req?.user?.isadmin;
-      console.log(`isAmin: ${isAdmin}`);
-      console.log("getALlDoctorsList");
-      if (isAdmin) {
-        let userInfo = await this.User.find({
-          isDoctor: true,
-          conformIsDoctor: true,
-        });
-        console.log(`userInfo:${userInfo}`);
-        this.response({
-          res,
-          message: "",
-          data: userInfo,
-        });
-      } else {
-        this.response({
-          res,
-          code: "403",
-          message: "Access Denied",
-          data: [],
-        });
-      }
+     
     } catch (error) {
       console.log(error);
       return res
@@ -41,42 +20,35 @@ module.exports = new (class extends controller {
     }
   }
 
-  // ************************************insert Doctor or Guardian
-  async registerPractitioner(req, res) {
-    try {
-      console.log("registerDoctor");
-      const practitionerList = req?.body?.practitionerList;
-      for (const {
-        email,
-        isDoctor,
-        firstName,
-        lastName,
-        title,
-        mobileNumber,
-      } of practitionerList) {
-        const newPractitioner = new this.User({
-          email,
-          isDoctor,
-          firstName,
-          lastName,
-          title,
-          mobileNumber,
+  // ************************************register hospital ************************************
+  async registerHospital(req, res) {
+    try {   
+      console.log("registerHospital")   
+      let hospital = await this.Hospital.findOne({ name: req.body.name, country:req.body.country });
+      console.log(hospital)
+      if(!hospital){
+          hospital = new this.Hospital(
+            {
+              name:req.body.name,
+              country:req.body.country,
+            }
+          )        
+          const response = await hospital.save();
+          this.response({
+            res, message: "the hospital successfully registered",
+            data: response
         });
-        const creatorId = req.user._id;
-        newPractitioner.creatoreId = creatorId;
-        let id = await this.savePractitionerInDB(newPractitioner, res);
-        console.log(`PractitionerID ${id}`)
-        req.body.practitionerId = id;
-
-        const dToP = await this.practitionerToPatient(req, id);
       }
-      this.response({
-        res,
-        message: " successfully pto registered",
-        data: {},
+      else{
+        this.response({
+          res, message: "this hospital already registered",
+          data: response
       });
+      }
       
-    } catch (error) {
+        
+      }     
+     catch (error) {
       console.log(error);
       return res
         .status(500)

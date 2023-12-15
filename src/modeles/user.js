@@ -2,7 +2,12 @@ const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
 
 const UserSchema = new mongoose.Schema({
-    email: {type: String, require: true, unique: true},    
+    email: {
+        type: String,
+        unique: true,
+        required: true,
+        match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ // Regular expression allowing periods in the email address
+      },
     password: {type: String, require: true},
     isadmin:{type: Boolean, default: false},
     isDoctor:{type: Boolean, default: false},
