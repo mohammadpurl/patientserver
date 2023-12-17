@@ -13,7 +13,6 @@ require("dotenv").config();
 module.exports = new (class extends controller {
   async register(req, res, next) {
 
-    console.log(req)
     let user = await this.User.findOne({ email: req.body.email });
 
     if (user) {

@@ -58,7 +58,7 @@ module.exports = class{
 
     }
     validationBody(req,res){
-        console.log('validationBody')
+        
         const result = validationResult(req);
         if(!result.isEmpty()){
             const errors = result.array();
@@ -73,7 +73,7 @@ module.exports = class{
         return true
     }
     validate(req,res,next){
-        console.log("validationBody")
+       
         if(!this.validationBody(req,res)){
             return
         }
