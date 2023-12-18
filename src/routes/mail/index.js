@@ -7,7 +7,7 @@ dotenv.config();
 const transporter = nodemailer.createTransport({
   service: "gmail",
   host: "smtp.gmail.com",
-  port: 465,
+  port: 587,
   secure: true,
   auth: {
     user: process.env.USER, //sender email address
@@ -35,7 +35,8 @@ async function sendMail(mailAddress) {
       subject: "PatientX Verification Code", // Subject line
       text: `Your verification code is: ${verificationCode}`, // plain text body
     };
-
+    console.log(transporter)
+   
     await transporter.sendMail(mailOptions);
     console.log("the mail has been send successfully");
   } catch (error) {
