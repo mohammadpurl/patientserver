@@ -1,8 +1,8 @@
 
 const express = require('express');
-
+const cors = require('cors');
 const app = express();
-
+app.use(cors('*'));
 const mongoose = require('mongoose');
 const debuge = require('debug')("app:main");
 const config = require('config');
