@@ -58,11 +58,12 @@ module.exports = new (class extends controller {
         console.log(req.body.verifyCode)
 
         if (verifyCode === req.body.verifyCode) {
-          this.response({
-            res,
-            message: "Code entered correctly",
-            data: _.pick(user, ["_id", "email"]),
-          });
+          // this.response({
+          //   res,
+          //   message: "Code entered correctly",
+          //   data: _.pick(user, ["_id", "email"]),
+          // });
+          res.redirect(307, "/api/auth//login");
         } else {
           this.response({
             res,
