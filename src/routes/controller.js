@@ -27,6 +27,7 @@ const PractitionerToPatient = require('./../modeles/practitionerTopatient');
 const Hospital = require('./../modeles/hospital')
 const HurtArea = require('./../modeles/hurtArea')
 const HurtType = require('./../modeles/hurtType')
+const CommentPrToPt = require('./../modeles/commentPrToPt') 
 
 module.exports = class{
     constructor(){
@@ -54,7 +55,8 @@ module.exports = class{
         this.PractitionerToPatient = PractitionerToPatient;
         this.Hospital = Hospital;
         this.HurtArea = HurtArea;
-        this.HurtType =HurtType;
+        this.HurtType = HurtType;
+        this.CommentPrToPt = CommentPrToPt
 
     }
     validationBody(req,res){

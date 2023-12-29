@@ -22,7 +22,10 @@ router.get(
     // controller.validate,
     controller.getALlDoctors
 )
-
+router.post(
+    '/addComment',    
+    controller.InsertPractitionerComments
+)
 
 
 
