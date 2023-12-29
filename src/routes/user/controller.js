@@ -562,12 +562,13 @@ module.exports = new (class extends controller {
         const resp = await this.HurtArea.deleteMany({ patientId: patientId });
       }
 
-      for (const { areaName, rate, hurtTypeId } of hurtList) {
+      for (const { areaName, rate, hurtTypeId, isFront } of hurtList) {
         hurtArea = new this.HurtArea({
           areaName,
           rate,
           patientId,
           hurtTypeId,
+          isFront
         });
         console.log(`hurtArea ${JSON.stringify(hurtArea)}`);
         const response = await hurtArea.save();

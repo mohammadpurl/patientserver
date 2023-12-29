@@ -10,6 +10,7 @@ const HurtAreaSchema = new mongoose.Schema({
     hurtTypeId: {
         type: mongoose.Schema.ObjectId, ref: 'HurtType', require: true
     },
+    isFront :{type:Boolean, require: true}
 
 })
 HurtAreaSchema.plugin(timestamp);
