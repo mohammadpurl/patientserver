@@ -39,6 +39,7 @@ async function sendMail(mailAddress) {
    
     await transporter.sendMail(mailOptions);
     console.log("the mail has been send successfully");
+    return verificationCode
   } catch (error) {
     console.log(error);
   }

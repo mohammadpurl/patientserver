@@ -33,13 +33,14 @@ module.exports = new (class extends controller {
     const response = await user.save();
     console.log(response);
 
-    email.sendMail(user.email);
+    const verificationCode = await email.sendMail(user.email);
     this.response({
       res,
       message: "the user successfully registered",
       data: {
         _id:user._id,
-        email:user.email
+        email:user.email,
+        code:verificationCode
       },
     });
 
