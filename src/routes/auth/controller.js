@@ -58,11 +58,11 @@ module.exports = new (class extends controller {
         console.log(req.body.verifyCode)
 
         if (verifyCode === req.body.verifyCode) {
-          // this.response({
-          //   res,
-          //   message: "Code entered correctly",
-          //   data: _.pick(user, ["_id", "email"]),
-          // });
+          const result = await this.User.findOneAndUpdate(
+            { _id: user._id },
+            { $set: { confirmedEmail: true } }
+          );
+    
           res.redirect(307, "/api/auth//login");
         } else {
           this.response({
@@ -91,7 +91,7 @@ module.exports = new (class extends controller {
   // *********************login**********************
   async login(req, res) {
     console.log(`login ${req}`);
-    let user = await this.User.findOne({ email: req.body.email });
+    let user = await this.User.findOne({ email: req.body.email, confirmedEmail:true });
     // console.log(`user:${user}`)
     if (!user) {
       console.log("!user");
