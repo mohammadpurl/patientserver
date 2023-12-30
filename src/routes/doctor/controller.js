@@ -171,23 +171,36 @@ module.exports = new (class extends controller {
       // console.log(`relatedPractitionerToPatient ${isValid}`)
       let practitionerInfo = await this.PractitionerToPatient.find({
         patientId: patientId,
-      }).populate(
-        "practitionerId",
-        "email firstName lastName  mobileNumber title isDoctor conformIsDoctor _id"
-      );
+      })
+        .populate({
+          path: "practitionerId",
+          select: "email firstName lastName mobileNumber",
+          populate: {
+            path: "title",
+            select: "name",
+          },
+        })
+        .lean();
+
+      practitionerInfo = practitionerInfo.map((info) => {
+        info.practitionerId.title = info.practitionerId.title.name;
+        return info;
+      });
       console.log(
         "178 relatedPractitionerToPatient practitionerInfo",
         practitionerInfo
       );
-     
-      const practitionerInfoNew = practitionerInfo.map(async (practitioner) =>{
+
+      practitionerInfo.map(async (practitioner) => {
         let titleInfo;
         if (practitioner?.practitionerId) {
-          titleInfo = await this.Title.findOne({ _id: practitioner?.practitionerId.title });
-          practitioner.practitionerId.titleName = titleInfo?.name
-          console.log("titleInfo",titleInfo)
+          titleInfo = await this.Title.findOne({
+            _id: practitioner?.practitionerId.title,
+          });
+          // practitioner?.practitionerId?.titleName = titleInfo?.name
+          console.log;
         }
-      })
+      });
       this.response({
         res,
         message: "",
