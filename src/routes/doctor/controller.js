@@ -173,9 +173,21 @@ module.exports = new (class extends controller {
         patientId: patientId,
       }).populate(
         "practitionerId",
-        "email firstName lastName  mobileNumber isDoctor conformIsDoctor _id"
+        "email firstName lastName  mobileNumber title isDoctor conformIsDoctor _id"
       );
-
+      console.log(
+        "178 relatedPractitionerToPatient practitionerInfo",
+        practitionerInfo
+      );
+     
+      const practitionerInfoNew = practitionerInfo.map(async (practitioner) =>{
+        let titleInfo;
+        if (practitioner?.practitionerId) {
+          titleInfo = await this.Title.findOne({ _id: practitioner?.practitionerId.title });
+          practitioner.practitionerId.titleName = titleInfo?.name
+          console.log("titleInfo",titleInfo)
+        }
+      })
       this.response({
         res,
         message: "",
@@ -223,26 +235,25 @@ module.exports = new (class extends controller {
       );
       const isValid = mongoose.isValidObjectId(patientId);
       const practitionerId = req.user?._id;
-      const comment = req.body?.comment
+      const comment = req.body?.comment;
       if (patientInfo && isValid) {
         const commentPrToPt = new this.CommentPrToPt({
           patientId,
           practitionerId,
-          comment
+          comment,
         });
         const response = await commentPrToPt.save();
         console.log(
           `InsertPractitionerComments response${JSON.stringify(response)}`
         );
         return res
-        .status(200)
-        .json({ status: true, message: "success.", data: {} });
+          .status(200)
+          .json({ status: true, message: "success.", data: {} });
       }
-      
+
       return res
         .status(500)
         .json({ status: true, message: "something went wrong", data: error });
-        
     } catch (error) {
       console.log(error);
       return res

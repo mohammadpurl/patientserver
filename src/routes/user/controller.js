@@ -295,7 +295,7 @@ module.exports = new (class extends controller {
         
       } = userInfo;
       console.log(`296 processObject userInfo:${userInfo}`);
-      const email = userInfo?.email;
+      const email = userInfo?.email? userInfo?.email :user?.email;
       const religionId = religion?._id;
       const nationalityId = nationality?._id;
       const sexualityId = sexuality?._id;
