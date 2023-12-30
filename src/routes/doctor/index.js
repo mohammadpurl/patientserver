@@ -26,7 +26,10 @@ router.post(
     '/addComment',    
     controller.InsertPractitionerComments
 )
-
+router.get(
+    '/getComment/:id',    
+    controller.getPractitionerComments
+)
 
 
 

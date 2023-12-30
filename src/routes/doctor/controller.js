@@ -274,4 +274,29 @@ module.exports = new (class extends controller {
         .json({ status: true, message: "something went wrong", data: error });
     }
   }
+  async getPractitionerComments(req, res) {
+    try {
+      const patientId = req.params.id;
+      let practitionerComments = await this.CommentPrToPt.find({ patientId: patientId }).populate({
+        path: "practitionerId",
+        select: "email firstName lastName mobileNumber",
+        populate: {
+          path: "title",
+          select: "name",
+        },
+      });
+      console.log("getPractitionerComments",practitionerComments)
+      this.response({
+        res,
+        message: "",
+        data: practitionerComments,
+      });
+    }
+    catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: true, message: "something went wrong", data: error });
+    }
+  }
 })();

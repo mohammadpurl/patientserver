@@ -102,7 +102,12 @@ module.exports = new (class extends controller {
 
       console.log(`userData:${JSON.stringify(userData)}`);
       this.response({ res, data: userData });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
   }
   // *********************update prifile**********************
   async updateProfile(req, res) {
@@ -263,11 +268,17 @@ module.exports = new (class extends controller {
 
   // *******************************************calculate age
   _calculateAge(birthday) {
-    // birthday is a date
-    var ageDifMs = Date.now() - birthday?.getTime();
-    console.log(`ageDifMs${ageDifMs}`);
-    var ageDate = new Date(ageDifMs); // miliseconds from epoch
-    return Math.abs(ageDate.getUTCFullYear() - 1970);
+   try {
+     // birthday is a date
+     var ageDifMs = Date.now() - birthday?.getTime();
+     console.log(`ageDifMs${ageDifMs}`);
+     var ageDate = new Date(ageDifMs); // miliseconds from epoch
+     return Math.abs(ageDate.getUTCFullYear() - 1970);
+   } catch (error) {
+    
+    console.log(error)
+    return 0
+   }
   }
   // ****************************************get user info
   processObject(userInfo, type) {
