@@ -171,46 +171,51 @@ module.exports = new (class extends controller {
       // console.log(`relatedPractitionerToPatient ${isValid}`)
       let practitionerInfo = await this.PractitionerToPatient.find({
         patientId: patientId,
-      })
-        .populate({
-          path: "practitionerId",
-          select: "email firstName lastName mobileNumber",
-          populate: {
-            path: "title",
-            select: "name",
-          },
-        })
-        .lean();
-
-      practitionerInfo = practitionerInfo.map((info) => {
-        info.practitionerId.title = info.practitionerId.title.name;
-        return info;
-      });
+      }).populate(
+        "practitionerId",
+        "email firstName lastName  mobileNumber title isDoctor conformIsDoctor _id"
+      );
       console.log(
         "178 relatedPractitionerToPatient practitionerInfo",
         practitionerInfo
       );
+     
+      const processedObjects = await Promise.all(practitionerInfo.map(async (practitioner) => 
+      this.processPractitionerId(practitioner)
+    ));
 
-      practitionerInfo.map(async (practitioner) => {
-        let titleInfo;
-        if (practitioner?.practitionerId) {
-          titleInfo = await this.Title.findOne({
-            _id: practitioner?.practitionerId.title,
-          });
-          // practitioner?.practitionerId?.titleName = titleInfo?.name
-          console.log;
-        }
-      });
       this.response({
         res,
         message: "",
-        data: practitionerInfo,
+        data: processedObjects,
       });
     } catch (error) {
       console.log(` lmp practitionerToPatient ${error}`);
       return res
         .status(500)
         .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  // ************************process practitionerID****************************
+  
+ async processPractitionerId(practitioner) {
+    try {
+      if (practitioner?.practitionerId) {
+        const titleInfo = await this.Title.findOne({ _id: practitioner.practitionerId.title }).exec();
+        console.log("titleInfo",titleInfo);
+        const newPractitionerId = {
+          ...practitioner.practitionerId.toObject(),
+          titleName: titleInfo?.name,
+        };
+        practitioner.practitionerId = newPractitionerId;
+        console.log("practitioner.practitionerId", practitioner.practitionerId);
+        console.log("practitioner.practitionerId.titleName", practitioner.practitionerId.titleName);
+      }
+      console.log("practitioner", practitioner);
+      return practitioner;
+    } catch (error) {
+      console.log(error);
+      throw error; // Optionally, you can rethrow the error to be caught in the calling function
     }
   }
   // ************************deleterelatedPractitioner****************************
