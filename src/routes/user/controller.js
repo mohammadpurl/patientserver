@@ -87,7 +87,7 @@ module.exports = new (class extends controller {
   async profile(req, res) {
     try {
       console.log(`req.user${req.user}`);
-      let userInfo = await this.User.findById({ _id: req.user._id })
+      let userInfo = await this.User.findOne({ _id: req.user._id })
         .populate("religion", "name code _id")
         .populate("nationality", "name code _id")
         .populate("sexuality", "name code _id")
@@ -98,9 +98,9 @@ module.exports = new (class extends controller {
         .populate("title", "name _id");
       console.log(`userInfo in profile${JSON.stringify(userInfo)} `);
 
-      const userData = this.processObject(userInfo);
+      const userData = this.processObject(userInfo,"show");
 
-      console.log(`userData:${JSON.stringify(userInfo)}`);
+      console.log(`userData:${JSON.stringify(userData)}`);
       this.response({ res, data: userData });
     } catch (error) {}
   }
@@ -292,9 +292,10 @@ module.exports = new (class extends controller {
         education,
         country,
         editable,
+        
       } = userInfo;
-      console.log(`processObject userInfo:${userInfo}`);
-      const email = user?.email;
+      console.log(`296 processObject userInfo:${userInfo}`);
+      const email = userInfo?.email;
       const religionId = religion?._id;
       const nationalityId = nationality?._id;
       const sexualityId = sexuality?._id;
@@ -309,10 +310,10 @@ module.exports = new (class extends controller {
       const age = this._calculateAge(birthDate);
       const languages = [];
       userInfo?.languages?.map((language) => languages.push(language._id));
-
+      console.log("processObject email",email)
       const userData = {
         id: _id,
-        email,
+        email:email,
         firstName,
         lastName,
         title: titleId,
@@ -335,7 +336,7 @@ module.exports = new (class extends controller {
         country: countryId,
         editable,
       };
-      console.log(`processObject userData ${JSON.stringify(userData)}`);
+      console.log(`339 processObject userData ${JSON.stringify(userData)}`);
       if (type && type == "show") {
         const languages = [];
         languages.map((language) => {
