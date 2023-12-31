@@ -179,15 +179,17 @@ module.exports = new (class extends controller {
         "178 relatedPractitionerToPatient practitionerInfo",
         practitionerInfo
       );
-     
-      const processedObjects = await Promise.all(practitionerInfo.map(async (practitioner) => 
-      this.processPractitionerId(practitioner)
-    ));
-
+      const newPractitionerInfo = practitionerInfo;
+      const processedObjectsssss = await Promise.all(
+        newPractitionerInfo.map(async (practitioner) =>
+          this.processPractitionerId(practitioner)
+        )
+      );
+      console.log("processedObjectsssss", processedObjectsssss);
       this.response({
         res,
         message: "",
-        data: processedObjects,
+        data: processedObjectsssss,
       });
     } catch (error) {
       console.log(` lmp practitionerToPatient ${error}`);
@@ -197,25 +199,40 @@ module.exports = new (class extends controller {
     }
   }
   // ************************process practitionerID****************************
-  
- async processPractitionerId(practitioner) {
+
+  async processPractitionerId(pr) {
     try {
-      if (practitioner?.practitionerId) {
-        const titleInfo = await this.Title.findOne({ _id: practitioner.practitionerId.title }).exec();
-        console.log("titleInfo",titleInfo);
-        const newPractitionerId = {
-          ...practitioner.practitionerId.toObject(),
-          titleName: titleInfo?.name,
+      let newPractitionerId = pr;
+      
+      if (newPractitionerId?.practitionerId) {
+        const titleInfo = await this.Title.findOne({
+          _id: newPractitionerId.practitionerId.title,
+        });
+        console.log("titleInfo", titleInfo);
+        newPractitionerId = {
+          
+          patientId: pr.patientId,
+          _id: pr._id,
+          updatedAt: pr.updatedAt,
+          createdAt: pr.createdAt,
+          practitionerId: {
+            _id: pr?.practitionerId?._id,
+            email: pr?.practitionerId?.email,
+            isDoctor: pr?.practitionerId?.isDoctor,
+            conformIsDoctor: pr?.practitionerId?.conformIsDoctor,
+            firstName: pr?.practitionerId?.firstName,
+            lastName: pr?.practitionerId?.lastName,
+            title: pr?.practitionerId?.title,
+            mobileNumber: pr?.practitionerId?.mobileNumber,
+            titleName: titleInfo?.name,
+          },
         };
-        practitioner.practitionerId = newPractitionerId;
-        console.log("practitioner.practitionerId", practitioner.practitionerId);
-        console.log("practitioner.practitionerId.titleName", practitioner.practitionerId.titleName);
-      }
-      console.log("practitioner", practitioner);
-      return practitioner;
+        
+      }     
+      return newPractitionerId;
     } catch (error) {
       console.log(error);
-      throw error; // Optionally, you can rethrow the error to be caught in the calling function
+      throw error;
     }
   }
   // ************************deleterelatedPractitioner****************************
@@ -282,7 +299,9 @@ module.exports = new (class extends controller {
   async getPractitionerComments(req, res) {
     try {
       const patientId = req.params.id;
-      let practitionerComments = await this.CommentPrToPt.find({ patientId: patientId }).populate({
+      let practitionerComments = await this.CommentPrToPt.find({
+        patientId: patientId,
+      }).populate({
         path: "practitionerId",
         select: "email firstName lastName mobileNumber",
         populate: {
@@ -290,14 +309,13 @@ module.exports = new (class extends controller {
           select: "name",
         },
       });
-      console.log("getPractitionerComments",practitionerComments)
+      console.log("getPractitionerComments", practitionerComments);
       this.response({
         res,
         message: "",
         data: practitionerComments,
       });
-    }
-    catch (error) {
+    } catch (error) {
       console.log(error);
       return res
         .status(500)
