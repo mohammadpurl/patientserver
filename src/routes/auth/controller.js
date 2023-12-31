@@ -12,7 +12,6 @@ require("dotenv").config();
 
 module.exports = new (class extends controller {
   async register(req, res, next) {
-
     let user = await this.User.findOne({ email: req.body.email });
 
     if (user) {
@@ -21,13 +20,13 @@ module.exports = new (class extends controller {
         code: 400,
         message: "this user already register",
       });
-    }    
+    }
     user = new this.User({
       email: req.body.email,
       password: req.body.password,
-      isDoctor: req.body.isDoctor
+      isDoctor: req.body.isDoctor,
     });
-    
+
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(user.password, salt);
     const response = await user.save();
@@ -38,9 +37,9 @@ module.exports = new (class extends controller {
       res,
       message: "the user successfully registered",
       data: {
-        _id:user._id,
-        email:user.email,
-        code:verificationCode
+        _id: user._id,
+        email: user.email,
+        code: verificationCode,
       },
     });
 
@@ -49,20 +48,20 @@ module.exports = new (class extends controller {
   // *********************check verification code**********************
   async checkVerifyCode(req, res) {
     try {
-      console.log(req.body.email)
+      console.log(req.body.email);
       let user = await this.User.findOne({ email: req.body.email });
-      console.log(user)
+      console.log(user);
       if (user) {
         const verifyCode = await email.generateVerificationCode(req.body.email);
-        console.log(verifyCode)
-        console.log(req.body.verifyCode)
+        console.log(verifyCode);
+        console.log(req.body.verifyCode);
 
         if (verifyCode === req.body.verifyCode) {
           const result = await this.User.findOneAndUpdate(
             { _id: user._id },
             { $set: { confirmedEmail: true } }
           );
-    
+
           res.redirect(307, "/api/auth//login");
         } else {
           this.response({
@@ -71,8 +70,7 @@ module.exports = new (class extends controller {
             data: _.pick(user, ["_id", "email"]),
           });
         }
-      }
-      else{
+      } else {
         return res.status(400).json({
           status: false,
           message: "usr not found",
@@ -80,7 +78,7 @@ module.exports = new (class extends controller {
         });
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return res.status(500).json({
         status: false,
         message: "something went wrong",
@@ -90,39 +88,46 @@ module.exports = new (class extends controller {
   }
   // *********************login**********************
   async login(req, res) {
-    console.log(`login ${req}`);
-    let user = await this.User.findOne({ email: req.body.email, confirmedEmail:true });
-    // console.log(`user:${user}`)
-    if (!user) {
-      console.log("!user");
-      return this.response({
-        res,
-        code: 400,
-        message: "Invalid email or password",
+    try {
+      let user = await this.User.findOne({
+        email: req.body.email,
+        confirmedEmail: true,
       });
+      if (!user) {
+        console.log("!user");
+        return this.response({
+          res,
+          code: 400,
+          message: "Invalid email or password",
+        });
+      }
+
+      const isvalid = await bcrypt.compare(req.body.password, user?.password);
+      console.log(`isvalid ${isvalid}`);
+      if (!isvalid) {
+        return this.response({ res, code: 400, message: "Invalid  password" });
+      }
+
+      const access_token = jwt.sign(
+        { sub: user._id },
+        process.env.JWT_ACCESS_SECRET,
+        { expiresIn: process.env.JWT_ACCESS_TIME }
+      );
+
+      const refresh_token = await this.GenerateRefreshToken(user._id);
+      const userRole = await this.getRoles(user);
+      console.log(refresh_token);
+      // console.log(`userRole after login ${JSON.stringify(userRole) }`)
+      this.response({
+        res,
+        message: "successfuly loged in",
+        data: { access_token, refresh_token, userRole },
+      });
+    } catch (error) {
+       return res
+      .status(500)
+      .json({ status: true, message: "something went wrong", data: error });
     }
-
-    const isvalid = await bcrypt.compare(req.body.password, user?.password);
-    console.log(`isvalid ${isvalid}`);
-    if (!isvalid) {
-      return this.response({ res, code: 400, message: "Invalid  password" });
-    }
-
-    const access_token = jwt.sign(
-      { sub: user._id },
-      process.env.JWT_ACCESS_SECRET,
-      { expiresIn: process.env.JWT_ACCESS_TIME }
-    );
-
-    const refresh_token = await this.GenerateRefreshToken(user._id);
-    const userRole = await this.getRoles(user);
-    console.log(refresh_token);
-    // console.log(`userRole after login ${JSON.stringify(userRole) }`)
-    this.response({
-      res,
-      message: "successfuly loged in",
-      data: { access_token, refresh_token, userRole },
-    });
   }
   // *********************login**********************
   async getRoles(user) {
@@ -175,36 +180,44 @@ module.exports = new (class extends controller {
     }
   }
   async GetAccessToken(req, res) {
-    const user_id = req.userData.sub;
+    try {
+      const user_id = req.userData.sub;
 
-    const access_token = jwt.sign(
-      { sub: user_id },
-      process.env.JWT_ACCESS_SECRET,
-      { expiresIn: process.env.JWT_ACCESS_TIME }
-    );
-    console.log(`GetAccessToken${access_token}`);
-    const refresh_token = await this.GenerateRefreshToken(user_id);
-    console.log(`GetAccessToken${refresh_token}`);
-    return res.json({
-      status: true,
-      message: "success",
-      data: { access_token, refresh_token },
-    });
+      const access_token = jwt.sign(
+        { sub: user_id },
+        process.env.JWT_ACCESS_SECRET,
+        { expiresIn: process.env.JWT_ACCESS_TIME }
+      );
+      console.log(`GetAccessToken${access_token}`);
+      const refresh_token = await this.GenerateRefreshToken(user_id);
+      console.log(`GetAccessToken${refresh_token}`);
+      return res.json({
+        status: true,
+        message: "success",
+        data: { access_token, refresh_token },
+      });
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   async GenerateRefreshToken(user_id) {
-    const refresh_token = jwt.sign(
-      { sub: user_id },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: process.env.JWT_REFRESH_TIME }
-    );
-
-    const result = await this.User.findOneAndUpdate(
-      { _id: user_id },
-      { $set: { lastRefreshToken: refresh_token } }
-    );
-
-    return refresh_token;
+    try {
+      const refresh_token = jwt.sign(
+        { sub: user_id },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: process.env.JWT_REFRESH_TIME }
+      );
+  
+      const result = await this.User.findOneAndUpdate(
+        { _id: user_id },
+        { $set: { lastRefreshToken: refresh_token } }
+      );
+  
+      return refresh_token;
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   async verifyRefreshToken(req, res, next) {

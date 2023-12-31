@@ -180,16 +180,16 @@ module.exports = new (class extends controller {
         practitionerInfo
       );
       const newPractitionerInfo = practitionerInfo;
-      const processedObjectsssss = await Promise.all(
-        newPractitionerInfo.map(async (practitioner) =>
-          this.processPractitionerId(practitioner)
+      const processedObjects = await Promise.all(
+        practitionerInfo.map(async (practitioner) =>
+          this.processPractitionerId(practitioner, patientId)
         )
       );
-      console.log("processedObjectsssss", processedObjectsssss);
+      console.log("processedObjects", processedObjects);
       this.response({
         res,
         message: "",
-        data: processedObjectsssss,
+        data: processedObjects,
       });
     } catch (error) {
       console.log(` lmp practitionerToPatient ${error}`);
@@ -200,15 +200,19 @@ module.exports = new (class extends controller {
   }
   // ************************process practitionerID****************************
 
-  async processPractitionerId(pr) {
+  async processPractitionerId(pr, patientId) {
     try {
       let newPractitionerId = pr;
       
       if (pr?.practitionerId) {
         const titleInfo = await this.Title.findOne({
           _id: newPractitionerId.practitionerId.title,
-        });
+        });        
         console.log("titleInfo", titleInfo);
+
+        const comments = await this.getPractitionerComments(pr?.practitionerId?._id, patientId)
+        console.log("getPractitionerComments comments", comments);
+
         newPractitionerId = {
           
           patientId: pr.patientId,
@@ -225,6 +229,7 @@ module.exports = new (class extends controller {
             title: pr?.practitionerId?.title,
             mobileNumber: pr?.practitionerId?.mobileNumber,
             titleName: titleInfo?.name,
+            // comments
           },
         };
         
@@ -296,30 +301,38 @@ module.exports = new (class extends controller {
         .json({ status: true, message: "something went wrong", data: error });
     }
   }
+    // ************************getPractitionerComments****************************
   async getPractitionerComments(req, res) {
     try {
       const patientId = req.params.id;
+      const comments = []
       let practitionerComments = await this.CommentPrToPt.find({
-        patientId: patientId,
-      }).populate({
-        path: "practitionerId",
-        select: "email firstName lastName mobileNumber",
-        populate: {
-          path: "title",
-          select: "name",
-        },
-      });
-      console.log("getPractitionerComments", practitionerComments);
-      this.response({
-        res,
-        message: "",
-        data: practitionerComments,
-      });
+        patientId: patientId
+      })
+      .populate(
+        "practitionerId",
+        "email firstName lastName  mobileNumber title isDoctor conformIsDoctor _id"
+      );
+    //   console.log("getPractitionerComments", practitionerComments);
+    //   for (const { comment, createdAt }  of practitionerComments) {
+    //     const commentItem ={
+    //       comment,
+    //       createdAt
+    //     }
+    //     comments.push(commentItem)
+    //   }
+      
+    //  return comments
+    return res
+          .status(200)
+          .json({ status: true, message: "success.", data: practitionerComments });
+
     } catch (error) {
       console.log(error);
       return res
         .status(500)
         .json({ status: true, message: "something went wrong", data: error });
+    
     }
   }
 })();
