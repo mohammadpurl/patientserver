@@ -204,7 +204,7 @@ module.exports = new (class extends controller {
     try {
       let newPractitionerId = pr;
       
-      if (newPractitionerId?.practitionerId) {
+      if (pr?.practitionerId) {
         const titleInfo = await this.Title.findOne({
           _id: newPractitionerId.practitionerId.title,
         });
