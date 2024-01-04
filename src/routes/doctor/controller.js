@@ -304,7 +304,7 @@ module.exports = new (class extends controller {
     // ************************getPractitionerComments****************************
   async getPractitionerComments(req, res) {
     try {
-      const patientId = req.params.id;
+      const patientId = req?.params?.id;
       const comments = []
       let practitionerComments = await this.CommentPrToPt.find({
         patientId: patientId
