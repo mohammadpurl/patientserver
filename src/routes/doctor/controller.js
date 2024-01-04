@@ -210,8 +210,8 @@ module.exports = new (class extends controller {
         });        
         console.log("titleInfo", titleInfo);
 
-        const comments = await this.getPractitionerComments(pr?.practitionerId?._id, patientId)
-        console.log("getPractitionerComments comments", comments);
+        // const comments = await this.getPractitionerComments(pr?.practitionerId?._id, patientId)
+        // console.log("getPractitionerComments comments", comments);
 
         newPractitionerId = {
           
