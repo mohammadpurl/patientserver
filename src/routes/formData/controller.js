@@ -15,6 +15,7 @@ const LastThirtyList = require('./../../Data/lastThirty.json')
 const WomenHistoryList = require('./../../Data/womenHistory.json')
 const medicalHistoryList = require('./../../Data/medicalHistory.json')
 const hurtTypeList = require("./../../Data/hurtType.json")
+const MenHistoryList = require('./../../Data/menHistory.json')
 
 require('dotenv').config();
 // const redis_client = require('./../../../redis_connect');
@@ -420,7 +421,41 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
-    
+    // *********************************  Men History ************************************
+    async GetMenHistoryItems(req, res) {
+        try {
+
+            let menHistory = await this.MenHistory.find()
+            this.response({
+                res, message: "",
+                data: menHistory
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertMenHistory(req, res) {
+        
+        try {
+            for (const {description, value, code} of MenHistoryList)
+             {
+                
+                let menHistory = new this.MenHistory({
+                    description,
+                    code,
+                    value
+                })                
+
+                const menHistoryItem = await menHistory.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
      // *********************************  Medical History ************************************
      async GetMedicalHistoryItems(req, res) {
         try {

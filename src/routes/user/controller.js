@@ -488,6 +488,65 @@ module.exports = new (class extends controller {
         .json({ status: false, message: "something went wrong", data: error });
     }
   }
+   // ************************InsertWomen History ToPatient****************************
+   async insertWomenHistoryToPatient(req, res) {
+    try {
+      console.log("insertWomenHistoryToPatient");
+      const womenHistoryList = req.body?.womenHistoryList;
+      console.log(`womenHistoryList${JSON.stringify(womenHistoryList)}`);
+
+      const patientId = req.body?.patientId;
+      console.log(`patientId${patientId}`);
+      const hasWomenHistory = await this.WomenHistoryToPatient.find({
+        patientId: patientId,
+      });
+      if (hasWomenHistory) {
+        const resp = await this.hasWomenHistory.deleteMany({
+          patientId: patientId,
+        });
+      }
+      for (const {
+        womenHistoryId,
+        value,
+        
+      } of womenHistoryList) {
+        const womenHistoryToPatient = new this.WomenHistoryToPatient({
+          womenHistoryId,
+          value,
+        });
+        const response = await womenHistoryToPatient.save();
+        console.log(
+          `WomenHistoryToPatient ${JSON.stringify(response)}`
+        );
+      }
+      return res
+        .status(200)
+        .json({ status: true, message: "success.", data: {} });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: true, message: "something went wrong", data: error });
+    }
+  }
+   // **********************************get Women History*****************************
+   async getWomenHistory(req, res) {
+    try {
+      const patientId = req.params?.id;
+      console.log(`getWomenHistory patientId ${patientId}`);
+      const womenHistory = await this.WomenHistoryToPatient.find({
+        patientId: patientId,
+      }).populate("WomenHistoryId", "description code");
+      console.log(`getWomenHistory ${womenHistory}`);
+
+      this.response({ res, data: womenHistory });
+    } catch (error) {
+      console.log(`getWomenHistory${error}`);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
   // ************************InsertMedicationToPatient****************************
   async insertLastThirtyToPatient(req, res) {
     try {

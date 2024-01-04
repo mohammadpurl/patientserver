@@ -104,6 +104,22 @@ router.get(
 
 )
 router.post(
+    '/womenhistory',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.insertWomenHistoryToPatient
+
+)
+
+router.get(
+    '/womenhistory/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getWomenHistory
+
+)
+
+router.post(
     '/hurtArea',
     // validator.loginValidation(),
     // controller.validate,

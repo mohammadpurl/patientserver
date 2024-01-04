@@ -105,6 +105,13 @@ router.get(
     controller.GetWomenHistoryItems)
 
 router.post(
+    '/insertmenhistory',
+    controller.InsertMenHistory)
+
+router.get(
+    '/menhistoryitems',
+    controller.GetMenHistoryItems)
+router.post(
     '/insertmedicalhistory',
     controller.InserttMedicalHistory)
 
