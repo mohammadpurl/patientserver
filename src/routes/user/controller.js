@@ -381,11 +381,7 @@ module.exports = new (class extends controller {
       const hasMedicationValue = await this.MedicationToPatient.find({
         patientId: patientId,
       });
-      if (hasMedicationValue) {
-        const resp = await this.MedicationToPatient.deleteMany({
-          patientId: patientId,
-        });
-      }
+      8
       for (const {
         medicationId,
         howManydays,
@@ -488,7 +484,7 @@ module.exports = new (class extends controller {
         .json({ status: false, message: "something went wrong", data: error });
     }
   }
-   // ************************InsertWomen History ToPatient****************************
+   // ************************Insert Women History ToPatient****************************
    async insertWomenHistoryToPatient(req, res) {
     try {
       console.log("insertWomenHistoryToPatient");
@@ -501,18 +497,18 @@ module.exports = new (class extends controller {
         patientId: patientId,
       });
       if (hasWomenHistory) {
-        const resp = await this.hasWomenHistory.deleteMany({
+        const resp = await this.WomenHistoryToPatient.deleteMany({
           patientId: patientId,
         });
       }
       for (const {
         womenHistoryId,
-        value,
-        
+        value
       } of womenHistoryList) {
         const womenHistoryToPatient = new this.WomenHistoryToPatient({
           womenHistoryId,
           value,
+          patientId
         });
         const response = await womenHistoryToPatient.save();
         console.log(
@@ -532,20 +528,102 @@ module.exports = new (class extends controller {
    // **********************************get Women History*****************************
    async getWomenHistory(req, res) {
     try {
-      const patientId = req.params?.id;
+      const patientId = req?.params?.id;
       console.log(`getWomenHistory patientId ${patientId}`);
       const womenHistory = await this.WomenHistoryToPatient.find({
         patientId: patientId,
-      }).populate("WomenHistoryId", "description code");
+      }).populate("womenHistoryId", "description code");
       console.log(`getWomenHistory ${womenHistory}`);
-
-      this.response({ res, data: womenHistory });
+      const resp = this.convertHistoryResponse(womenHistory, "women");
+      this.response({ res, data: resp });
     } catch (error) {
       console.log(`getWomenHistory${error}`);
       return res
         .status(500)
         .json({ status: false, message: "something went wrong", data: error });
     }
+  }
+  
+  // ************************Insert Women History ToPatient****************************
+  async insertMenHistoryToPatient(req, res) {
+    try {
+      console.log("insertMenHistoryToPatient");
+      const menHistoryList = req.body?.menHistoryList;
+      console.log(`menHistoryList${JSON.stringify(menHistoryList)}`);
+
+      const patientId = req.body?.patientId;
+      console.log(`patientId${patientId}`);
+      const hasMenHistory = await this.MenHistoryToPatient.find({
+        patientId: patientId,
+      });
+      if (hasMenHistory) {
+        const resp = await this.MenHistoryToPatient.deleteMany({
+          patientId: patientId,
+        });
+      }
+      for (const {
+        menHistoryId,
+        value
+      } of menHistoryList) {
+        const menHistoryToPatient = new this.MenHistoryToPatient({
+          menHistoryId,
+          value,
+          patientId
+        });
+        const response = await menHistoryToPatient.save();
+        console.log(
+          `menHistoryToPatient ${JSON.stringify(response)}`
+        );
+      }
+      return res
+        .status(200)
+        .json({ status: true, message: "success.", data: {} });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: true, message: "something went wrong", data: error });
+    }
+  }
+   // **********************************get Women History*****************************
+   async getMenHistory(req, res) {
+    try {
+      const patientId = req?.params?.id;
+      console.log(`getMenHistory patientId ${patientId}`);
+      const menHistory = await this.MenHistoryToPatient.find({
+        patientId: patientId,
+      }).populate("menHistoryId", "description code");
+      console.log(`getMenHistory ${menHistory}`);
+      const resp = this.convertHistoryResponse(menHistory, "men");
+      this.response({ res, data: resp });
+    } catch (error) {
+      console.log(`getMenHistory ${error}`);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  // ****************************************convert response
+  
+  convertHistoryResponse = (response, historyType) => {
+    const transformedData = response.map(item => {
+      const { _id, value, patientId, menHistoryId, womenHistoryId, updatedAt, createdAt, __v } = item;
+      const historyIdObj = historyType === 'men' ? menHistoryId : womenHistoryId;
+      const { _id: historyId, description, code } = historyIdObj;
+  
+      return {
+        _id,
+        value,
+        patientId,
+        [`${historyType}HistoryId`]: historyId,
+        description,
+        code,
+        updatedAt,
+        createdAt,
+        __v
+      };
+    });
+    return transformedData;
   }
   // ************************InsertMedicationToPatient****************************
   async insertLastThirtyToPatient(req, res) {
@@ -583,6 +661,7 @@ module.exports = new (class extends controller {
         .json({ status: true, message: "something went wrong", data: error });
     }
   }
+  
   // **********************************getAllMedicalHistory*****************************
   async getAllLastThirty(req, res) {
     try {
@@ -666,6 +745,200 @@ module.exports = new (class extends controller {
       this.response({ res, data: painAreas });
     } catch (error) {
       console.log(`painAreas${error}`);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  // ******************************************register PsychotherapyTopatient
+  async registerePsychotherapy(req, res) {
+    try {
+      const patientId = req.body?.patientId;
+      const psychotherapyList = req.body?.psychotherapyList;
+      console.log(`patientId${patientId}`);
+      let psychotherapyInfo = await this.PsychotherapyTopatient.find({ patientId: patientId });
+      if (psychotherapyInfo) {
+        const resp = await this.PsychotherapyTopatient.deleteMany({ patientId: patientId });
+      }
+
+      for (const { psychotherapyId, when } of psychotherapyList) {
+        psychotherapyInfo = new this.PsychotherapyTopatient({
+          psychotherapyId,
+          when,
+          patientId,
+        });
+        console.log(`registerePsychotherapy ${JSON.stringify(psychotherapyInfo)}`);
+        const response = await psychotherapyInfo.save();
+        console.log(`registerePsychotherapy  response${JSON.stringify(response)}`);
+      }
+     
+      return res
+        .status(200)
+        .json({ status: true, message: "success.", data: {} });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  // *******************************************Get PsychotherapyTopatient
+  async getPsychotherapyToPatient(req, res) {
+    try {
+      const patientId = req.params?.id;
+      const psychotherapyTopatient = await this.PsychotherapyTopatient.find({
+        patientId: patientId,
+      }).populate("psychotherapyId", "name");
+      this.response({ res, data: psychotherapyTopatient });
+    } catch (error) {
+      console.log(`getPsychotherapyToPatient${error}`);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+   // ******************************************register ImmunisationTopatient
+   async registereImmunisation(req, res) {
+    try {
+      const patientId = req.body?.patientId;
+      const immunisationList = req.body?.immunisationList;
+      console.log(`patientId${patientId}`);
+      let immunisationInfo = await this.ImmunisationyTopatient.find({ patientId: patientId });
+      if (immunisationInfo) {
+        const resp = await this.ImmunisationTopatient.deleteMany({ patientId: patientId });
+      }
+
+      for (const { immunisationId, value } of immunisationList) {
+        immunisationInfo = new this.ImmunisationTopatient({
+          immunisationId,
+          value,
+          patientId,
+        });
+        console.log(`registereImmunisation ${JSON.stringify(immunisationInfo)}`);
+        const response = await immunisationInfo.save();
+        console.log(`registereImmunisation  response${JSON.stringify(response)}`);
+      }
+     
+      return res
+        .status(200)
+        .json({ status: true, message: "success.", data: {} });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  // *******************************************Get Immunisation
+  async getImmunisationIdToPatient(req, res) {
+    try {
+      const patientId = req.params?.id;
+      const immunisationToPatient = await this.ImmunisationTopatient.find({
+        patientId: patientId,
+      }).populate("immunisationId", "name");
+      this.response({ res, data: immunisationToPatient });
+    } catch (error) {
+      console.log(`getimmunisationIdToPatient${error}`);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  // ******************************************register registereّFamiliHistoryToPatient
+  async registerFamilyHistoryToPatient(req, res) {
+    try {
+      const patientId = req.body?.patientId;
+      const familyHistoryList = req.body?.familyHistoryList;
+      console.log(`patientId${patientId}`);
+      let familyHistoryInfo = await this.FamilyHistoryToPatient.find({ patientId: patientId });
+      if (familyHistoryInfo) {
+        const resp = await this.FamilyHistoryToPatient.deleteMany({ patientId: patientId });
+      }
+
+      for (const { familyHistoryId, value } of familyHistoryList) {
+        familyHistoryInfo = new this.FamilyHistoryToPatient({
+          familyHistoryId,
+          value,
+          patientId,
+        });
+        console.log(`registereImmunisation ${JSON.stringify(familyHistoryInfo)}`);
+        const response = await familyHistoryInfo.save();
+        console.log(`registereّFamiliHistoryToPatient  response${JSON.stringify(response)}`);
+      }
+     
+      return res
+        .status(200)
+        .json({ status: true, message: "success.", data: {} });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  // *******************************************Get Immunisation
+  async getFamiliHistoryToPatient(req, res) {
+    try {
+      const patientId = req.params?.id;
+      const familyHistoryToPatient = await this.FamilyHistoryToPatient.find({
+        patientId: patientId,
+      }).populate("familyHistoryId", "name");
+      this.response({ res, data: familyHistoryToPatient });
+    } catch (error) {
+      console.log(`getimmunisationIdToPatient${error}`);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  // ******************************************register drugCategoryToPatient
+  async registerDrugCategoryToPatient(req, res) {
+    try {
+      const patientId = req.body?.patientId;
+      const drugCategoryList = req.body?.drugCategoryList;
+      console.log(`patientId${patientId}`);
+      let drugCategoryInfo = await this.DrugCategoryTopatient.find({ patientId: patientId });
+      if (drugCategoryInfo) {
+        const resp = await this.DrugCategoryTopatient.deleteMany({ patientId: patientId });
+      }
+      for (const { drugCategoryId, ageStarted, regularlyUseId, howManyYears, lastUseId } of drugCategoryList) {
+        drugCategoryInfo = new this.DrugCategoryTopatient({
+          drugCategoryId,
+          ageStarted,
+          patientId,
+          regularlyUseId,
+          howManyYears,
+          lastUseId
+        });
+        console.log(`registere DrugCategoryTopatient ${JSON.stringify(drugCategoryInfo)}`);
+        const response = await drugCategoryInfo.save();
+        console.log(`DrugCategoryTopatient  response${JSON.stringify(response)}`);
+      }
+     
+      return res
+        .status(200)
+        .json({ status: true, message: "success.", data: {} });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: false, message: "something went wrong", data: error });
+    }
+  }
+  // *******************************************Get Immunisation
+  async getDrugCategoryTopatient(req, res) {
+    try {
+      const patientId = req.params?.id;
+      const drugCategoryTopatient = await this.DrugCategoryTopatient.find({
+        patientId: patientId,
+      }).populate("drugCategoryId", "name")
+        .populate("regularlyUseId", "name")
+        .populate("lastUseId", "name")
+
+      ;
+      this.response({ res, data: drugCategoryTopatient });
+    } catch (error) {
+      console.log(`getDrugCategoryTopatient${error}`);
       return res
         .status(500)
         .json({ status: false, message: "something went wrong", data: error });

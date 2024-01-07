@@ -8,19 +8,12 @@ router.post(
     validator.hospitalrValidation(),    
     controller.registerHospital
 )
+router.get(
+    '/getHospitalInfo/:id',
+    // validator.hospitalrValidation(),    
+    controller.getHospitalInfo
+)
 
-// router.get(
-//     '/relatedPractitioner/:id',
-//     // validator.paRegisterValidation(),
-//     // controller.validate,
-//     controller.relatedPractitionerToPatient
-// )
-// router.get(
-//     '/practitioners',
-//     // validator.paRegisterValidation(),
-//     // controller.validate,
-//     controller.getALlDoctors
-// )
 
 
 

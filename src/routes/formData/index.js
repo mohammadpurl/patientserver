@@ -118,5 +118,54 @@ router.post(
 router.get(
     '/pastmedicalhistory',
     controller.GetMedicalHistoryItems)
+router.post(
+    '/insertPsychotherapy',
+    controller.InsertPsychotherapy)
 
+router.get(
+    '/psychotherapyItems',
+    controller.GetPsychotherapyItems)
+    
+router.post(
+    '/insertImmunisation',
+    controller.InsertImmunisation)
+
+router.get(
+    '/immunisationItems',
+    controller.GetImmunisationItems)
+
+router.post(
+    '/insertFamilyHistory',
+    controller.InsertFamilyHistory)
+
+router.get(
+    '/familyHistoryItems',
+    controller.GetFamilyHistoryItems)
+    
+router.post(
+    '/insertLastUse',
+    controller.InsertLastUse)
+
+router.get(
+    '/lastUseItems',
+    controller.GetLastUseItems)    
+
+router.post(
+    '/insertDrugCategory',
+    controller.InsertDrugCategory)
+
+router.get(
+    '/drugCategoryItems',
+    controller.GetDrugCategoryItems)    
+
+router.post(
+    '/insertRegularlyUse',
+    controller.InsertRegularlyUse)
+
+router.get(
+    '/regularlyUseItems',
+    controller.GetRegularlyUseItems) 
+    
+    
+            
 module.exports = router

@@ -134,6 +134,94 @@ router.get(
     controller.getAllPainArea
 
 )
+router.post(
+    '/womenHistoryToPatient',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.insertWomenHistoryToPatient
+
+)
+router.get(
+    '/getWomenHistory/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getWomenHistory
+
+)
+
+router.post(
+    '/menHistoryToPatient',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.insertMenHistoryToPatient
+
+)
+router.get(
+    '/getMenHistory/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getMenHistory
+
+)
+
+router.post(
+    '/registerePsychotherapy',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.registerePsychotherapy
+
+)
+router.get(
+    '/getPsychotherapyToPatient/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getPsychotherapyToPatient
+
+)
+router.post(
+    '/registereImmunisation',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.registereImmunisation
+
+)
+router.get(
+    '/getImmunisationIdToPatient/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getImmunisationIdToPatient
+
+)
+router.post(
+    '/registerFamilyHistoryToPatient',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.registerFamilyHistoryToPatient
+
+)
+router.get(
+    '/getFamiliHistoryToPatient/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getFamiliHistoryToPatient
+
+)
+router.post(
+    '/registerDrugCategoryToPatient',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.registerDrugCategoryToPatient
+
+)
+router.get(
+    '/getDrugCategoryTopatient/:id',
+    // validator.loginValidation(),
+    // controller.validate,
+    controller.getDrugCategoryTopatient
+
+)
+
+
 
 
 

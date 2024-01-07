@@ -16,6 +16,12 @@ const WomenHistoryList = require('./../../Data/womenHistory.json')
 const medicalHistoryList = require('./../../Data/medicalHistory.json')
 const hurtTypeList = require("./../../Data/hurtType.json")
 const MenHistoryList = require('./../../Data/menHistory.json')
+const PsychotherapyList = require('./../../Data/psychotherapy.json')
+const ImmunisationList = require('./../../Data/Immunisation.json')
+const FamilyHistoryList = require('./../../Data/familyHistory.json')
+const LastUseList = require('./../../Data/lastUse.json')
+const DrugCategoryList = require('./../../Data/drugCategory.json')
+const RegularlyUseList = require('./../../Data/regularlyUse.json')
 
 require('dotenv').config();
 // const redis_client = require('./../../../redis_connect');
@@ -490,5 +496,220 @@ module.exports = new (class extends controller {
             return res.status(500).json({ status: true, message: "something went wrong", data: error });
         }
     }
+    // *********************************  Men History ************************************
+    async GetPsychotherapyItems(req, res) {
+        try {
 
+            let Psychotherapy = await this.Psychotherapy.find()
+            this.response({
+                res, message: "",
+                data: Psychotherapy
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertPsychotherapy(req, res) {
+        
+        try {
+            for (const {name, code} of PsychotherapyList)
+             {
+                
+                let psychotherapy = new this.Psychotherapy({
+                    name,
+                    code
+                })                
+
+                const psychotherapyItem = await psychotherapy.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // *********************************  Men Immunisation ************************************
+    async GetImmunisationItems(req, res) {
+        try {
+
+            let immunisation = await this.Immunisation.find()
+            this.response({
+                res, message: "",
+                data: immunisation
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertImmunisation(req, res) {
+        
+        try {
+            for (const {name, code} of ImmunisationList)
+             {
+                
+                let immunisation = new this.Immunisation({
+                    name,
+                    code
+                })                
+
+                const immunisationItem = await immunisation.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // *********************************  Men Family History ************************************
+    async GetFamilyHistoryItems(req, res) {
+        try {
+
+            let familyHistory = await this.FamilyHistory.find()
+            this.response({
+                res, message: "",
+                data: familyHistory
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertFamilyHistory(req, res) {
+        
+        try {
+            for (const {name, code} of FamilyHistoryList)
+             {
+                
+                let familyHistory = new this.FamilyHistory({
+                    name,
+                    code
+                })                
+
+                const familyHistoryItem = await familyHistory.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // ********************************* Last use ************************************
+    async GetLastUseItems(req, res) {
+        try {
+
+            let lastUse = await this.LastUse.find()
+            this.response({
+                res, message: "",
+                data: lastUse
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertLastUse(req, res) {
+        
+        try {
+            const lastUse = await this.LastUse.find();
+            if (lastUse) {
+                const resp = await this.LastUse.deleteMany();
+              }
+            for (const {name, code} of LastUseList)
+             {
+                
+                let lastUse = new this.LastUse({
+                    name,
+                    code
+                })                
+
+                const lastUseItem = await lastUse.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // ********************************* Drug Category ************************************
+    async GetDrugCategoryItems(req, res) {
+        try {
+
+            let drugCategory = await this.DrugCategory.find()
+            this.response({
+                res, message: "",
+                data: drugCategory
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertDrugCategory(req, res) {
+        
+        try {
+            const drugCategory = await this.DrugCategory.find();
+            if (drugCategory) {
+                const resp = await this.DrugCategory.deleteMany();
+              }
+            for (const {name, code} of DrugCategoryList)
+             {
+                
+                let drugCategory = new this.DrugCategory({
+                    name,
+                    code
+                })                
+
+                const drugCategoryItem = await drugCategory.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+    // ********************************* Regularly Use ************************************
+    async GetRegularlyUseItems(req, res) {
+        try {
+
+            let regularlyUse = await this.RegularlyUse.find()
+            this.response({
+                res, message: "",
+                data: regularlyUse
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertRegularlyUse(req, res) {
+        
+        try {
+            const regularlyUse = await this.RegularlyUse.find();
+            if (regularlyUse) {
+                const resp = await this.RegularlyUse.deleteMany();
+              }
+            for (const {name, code} of RegularlyUseList)
+             {
+                
+                let regularlyUse = new this.RegularlyUse({
+                    name,
+                    code
+                })                
+
+                const regularlyUseItem = await regularlyUse.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
 })();

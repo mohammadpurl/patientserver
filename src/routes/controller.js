@@ -30,7 +30,18 @@ const HurtType = require('./../modeles/hurtType')
 const CommentPrToPt = require('./../modeles/commentPrToPt') 
 const WomenHistoryToPatient = require('./../modeles/womenHistoryToPatient')
 const MenHistory = require('./../modeles/menHistory');
-
+const MenHistoryToPatient = require('./../modeles/menHistoryToPatient')
+const HospitalToPatient = require('./../modeles/hospitalTopatient')
+const Psychotherapy = require('./../modeles/psychotherapy.js')
+const PsychotherapyTopatient = require('./../modeles/psychotherapyTopatient')
+const Immunisation = require('./../modeles/Immunisation')
+const ImmunisationTopatient =require('./../modeles/ImmunisationTopatient')
+const FamilyHistory = require('./../modeles/familyHistory.js')
+const FamilyHistoryToPatient =require('./../modeles/FamilyHistoryToPatient.js')
+const LastUse = require('./../modeles/lastUse.js')
+const DrugCategory  = require('./../modeles/drugCategory.js')
+const RegularlyUse  = require('./../modeles/regularlyUse.js')
+const DrugCategoryTopatient = require('./../modeles/drugCategoryToPatient.js')
 
 module.exports = class{
     constructor(){
@@ -62,6 +73,18 @@ module.exports = class{
         this.CommentPrToPt = CommentPrToPt
         this.WomenHistoryToPatient = WomenHistoryToPatient
         this.MenHistory = MenHistory
+        this.MenHistoryToPatient = MenHistoryToPatient;
+        this.HospitalToPatient = HospitalToPatient;
+        this.Psychotherapy = Psychotherapy;
+        this.PsychotherapyTopatient = PsychotherapyTopatient
+        this.Immunisation = Immunisation;
+        this.ImmunisationTopatient = ImmunisationTopatient
+        this.FamilyHistory = FamilyHistory
+        this.FamilyHistoryToPatient = FamilyHistoryToPatient;
+        this.LastUse = LastUse;
+        this.DrugCategory = DrugCategory
+        this.RegularlyUse = RegularlyUse;
+        this.DrugCategoryTopatient = DrugCategoryTopatient
 
     }
     validationBody(req,res){
