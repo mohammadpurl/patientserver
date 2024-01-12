@@ -7,7 +7,8 @@ const DrugCategoryToPatientSchema = new mongoose.Schema({
     patientId:{ type: mongoose.Schema.ObjectId, ref: "Patient"},
     regularlyUseId:{ type: mongoose.Schema.ObjectId, ref: "RegularlyUse"},
     howManyYears:{type:Number, required:true},
-    lastUseId:{ type: mongoose.Schema.ObjectId, ref: "LastUse"},    
+    lastUseId:{ type: mongoose.Schema.ObjectId, ref: "LastUse"}, 
+    stillUsing: {type: Boolean, required:true},   
     
 })
 DrugCategoryToPatientSchema.plugin(timestamp);

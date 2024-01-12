@@ -381,7 +381,12 @@ module.exports = new (class extends controller {
       const hasMedicationValue = await this.MedicationToPatient.find({
         patientId: patientId,
       });
-      8
+      if (hasMedicationValue) {
+        const resp = await this.MedicationToPatient.deleteMany({
+          patientId: patientId,
+        });
+      }
+      
       for (const {
         medicationId,
         howManydays,
@@ -901,14 +906,15 @@ module.exports = new (class extends controller {
       if (drugCategoryInfo) {
         const resp = await this.DrugCategoryTopatient.deleteMany({ patientId: patientId });
       }
-      for (const { drugCategoryId, ageStarted, regularlyUseId, howManyYears, lastUseId } of drugCategoryList) {
+      for (const { drugCategoryId, ageStarted, regularlyUseId, howManyYears, lastUseId, stillUsing } of drugCategoryList) {
         drugCategoryInfo = new this.DrugCategoryTopatient({
           drugCategoryId,
           ageStarted,
           patientId,
           regularlyUseId,
           howManyYears,
-          lastUseId
+          lastUseId,
+          stillUsing,
         });
         console.log(`registere DrugCategoryTopatient ${JSON.stringify(drugCategoryInfo)}`);
         const response = await drugCategoryInfo.save();
