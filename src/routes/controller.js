@@ -43,6 +43,7 @@ const DrugCategory  = require('./../modeles/drugCategory.js')
 const RegularlyUse  = require('./../modeles/regularlyUse.js')
 const DrugCategoryTopatient = require('./../modeles/drugCategoryToPatient.js')
 
+
 module.exports = class{
     constructor(){
         autoBind(this)
@@ -84,8 +85,7 @@ module.exports = class{
         this.LastUse = LastUse;
         this.DrugCategory = DrugCategory
         this.RegularlyUse = RegularlyUse;
-        this.DrugCategoryTopatient = DrugCategoryTopatient
-
+        this.DrugCategoryTopatient = DrugCategoryTopatient;
     }
     validationBody(req,res){
         

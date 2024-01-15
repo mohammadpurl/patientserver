@@ -808,7 +808,7 @@ module.exports = new (class extends controller {
       const patientId = req.body?.patientId;
       const immunisationList = req.body?.immunisationList;
       console.log(`patientId${patientId}`);
-      let immunisationInfo = await this.ImmunisationyTopatient.find({ patientId: patientId });
+      let immunisationInfo = await this.ImmunisationTopatient.find({ patientId: patientId });
       if (immunisationInfo) {
         const resp = await this.ImmunisationTopatient.deleteMany({ patientId: patientId });
       }
