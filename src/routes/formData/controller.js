@@ -19,6 +19,7 @@ const MenHistoryList = require('./../../Data/menHistory.json')
 const PsychotherapyList = require('./../../Data/psychotherapy.json')
 const ImmunisationList = require('./../../Data/Immunisation.json')
 const FamilyHistoryList = require('./../../Data/familyHistory.json')
+const FamilyTypeList = require('./../../Data/familyType.json')
 const LastUseList = require('./../../Data/lastUse.json')
 const DrugCategoryList = require('./../../Data/drugCategory.json')
 const RegularlyUseList = require('./../../Data/regularlyUse.json')
@@ -590,6 +591,40 @@ module.exports = new (class extends controller {
                 })                
 
                 const familyHistoryItem = await familyHistory.save();
+            }
+            return res.status(200).json({ status: true, message: "success.", data: {} });
+
+        } catch (error) {
+            console.log(error)
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+     // *********************************   Family Type ************************************
+     async GetFamilyTypeItems(req, res) {
+        try {
+
+            let familyType = await this.FamilyType.find()
+            this.response({
+                res, message: "",
+                data: familyType
+            });
+        } catch (error) {
+            return res.status(500).json({ status: true, message: "something went wrong", data: error });
+        }
+    }
+
+    async InsertFamilyType(req, res) {
+        
+        try {
+            for (const {name, code} of FamilyTypeList)
+             {
+                
+                let familyType = new this.FamilyType({
+                    name,
+                    code
+                })                
+
+                const familyTypeItem = await familyType.save();
             }
             return res.status(200).json({ status: true, message: "success.", data: {} });
 

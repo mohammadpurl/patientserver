@@ -141,6 +141,17 @@ router.post(
 router.get(
     '/familyHistoryItems',
     controller.GetFamilyHistoryItems)
+
+router.post(
+    '/insertFamilyType',
+    controller.InsertFamilyType)
+
+router.get(
+    '/familyTypeItems',
+    controller.GetFamilyTypeItems)
+
+    
+
     
 router.post(
     '/insertLastUse',

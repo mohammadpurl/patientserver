@@ -42,6 +42,7 @@ const LastUse = require('./../modeles/lastUse.js')
 const DrugCategory  = require('./../modeles/drugCategory.js')
 const RegularlyUse  = require('./../modeles/regularlyUse.js')
 const DrugCategoryTopatient = require('./../modeles/drugCategoryToPatient.js')
+const FamilyType = require('./../modeles/familyType.js')
 
 
 module.exports = class{
@@ -86,6 +87,7 @@ module.exports = class{
         this.DrugCategory = DrugCategory
         this.RegularlyUse = RegularlyUse;
         this.DrugCategoryTopatient = DrugCategoryTopatient;
+        this.FamilyType = FamilyType
     }
     validationBody(req,res){
         
