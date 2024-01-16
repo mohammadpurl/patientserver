@@ -560,10 +560,15 @@ module.exports = new (class extends controller {
   async insertMenHistoryToPatient(req, res) {
     try {
       console.log("insertMenHistoryToPatient");
-      const menHistoryList = req.body?.menHistoryList;
-      console.log(`menHistoryList${JSON.stringify(menHistoryList)}`);
 
-      const patientId = req.body?.patientId;
+      const {
+        erectileDysfunction,
+        reducedLibido,
+        frequentUrinationsinDay,
+        frequentUrinationsinNight,
+        patientId,
+        
+      } = req.body;
       console.log(`patientId${patientId}`);
       const hasMenHistory = await this.MenHistoryToPatient.find({
         patientId: patientId,
@@ -572,16 +577,17 @@ module.exports = new (class extends controller {
         const resp = await this.MenHistoryToPatient.deleteMany({
           patientId: patientId,
         });
-      }
-      for (const { menHistoryId, value } of menHistoryList) {
-        const menHistoryToPatient = new this.MenHistoryToPatient({
-          menHistoryId,
-          value,
-          patientId,
-        });
-        const response = await menHistoryToPatient.save();
-        console.log(`menHistoryToPatient ${JSON.stringify(response)}`);
-      }
+      }      
+      const menHistoryToPatient = new this.MenHistoryToPatient({
+        erectileDysfunction,
+        reducedLibido,
+        frequentUrinationsinDay,
+        frequentUrinationsinNight,
+        patientId,
+      });
+      const response = await menHistoryToPatient.save();
+      console.log(`menHistoryToPatient ${JSON.stringify(response)}`);
+      
       return res
         .status(200)
         .json({ status: true, message: "success.", data: {} });
@@ -893,7 +899,7 @@ module.exports = new (class extends controller {
       }
 
       for (const {
-        familyType,
+        familyTypeId,
         isAlive,
         age,
         healthStatus,
@@ -901,7 +907,7 @@ module.exports = new (class extends controller {
         cause,
       } of familyHistoryList) {
         familyHistoryInfo = new this.FamilyHistoryToPatient({
-          familyType,
+          familyTypeId,
           isAlive,
           age,
           healthStatus,
@@ -936,8 +942,9 @@ module.exports = new (class extends controller {
       const patientId = req.params?.id;
       const familyHistoryToPatient = await this.FamilyHistoryToPatient.find({
         patientId: patientId,
-      }).populate("FamilyType", "name");
-      this.response({ res, data: familyHistoryToPatient });
+      }).populate("familyTypeId", "name _id code");
+      const resp = this.convertFamilyHistoryResponse(familyHistoryToPatient)
+      this.response({ res, data: resp });
     } catch (error) {
       console.log(`getimmunisationIdToPatient${error}`);
       return res
@@ -945,6 +952,46 @@ module.exports = new (class extends controller {
         .json({ status: false, message: "something went wrong", data: error });
     }
   }
+
+
+
+   // ****************************************convert response
+
+   convertFamilyHistoryResponse = (response) => {
+    const transformedData = response.map((item) => {
+      const {
+        _id,
+        isAlive,
+        patientId,
+        age,
+        healthStatus,
+        whatAge,
+        cause,
+        familyTypeId,
+        updatedAt,
+        createdAt,
+        __v,
+      } = item;
+    
+      const { _id: typeID, name:familyType, code } = familyTypeId;
+
+      return {
+        _id,        
+        patientId,
+        familyTypeId:typeID,
+        familyType,
+        isAlive,
+        age,
+        healthStatus,
+        whatAge,
+        cause,
+        updatedAt,
+        createdAt,
+        __v,
+      };
+    });
+    return transformedData;
+  };
   // ******************************************register drugCategoryToPatient
   async registerDrugCategoryToPatient(req, res) {
     try {

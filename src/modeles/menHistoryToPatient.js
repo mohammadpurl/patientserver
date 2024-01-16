@@ -2,9 +2,12 @@ const mongoose = require('mongoose');
 const timestamp = require('mongoose-timestamp');
 
 const MenHistoryToPatientSchema = new mongoose.Schema({
-    value: {type: Boolean, require: true},
+    erectileDysfunction: {type: Boolean, require: true},
+    reducedLibido: {type: Boolean, require: true},
+    frequentUrinationsinDay: {type: Boolean, require: true},
+    frequentUrinationsinNight: {type: Boolean, require: true},
     patientId: { type: mongoose.Schema.ObjectId, ref: "Patient"},  
-    menHistoryId: { type: mongoose.Schema.ObjectId, ref: "MenHistory"},
+   
     
 })
 MenHistoryToPatientSchema.plugin(timestamp);
