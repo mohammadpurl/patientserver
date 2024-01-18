@@ -875,7 +875,31 @@ module.exports = new (class extends controller {
       const immunisationToPatient = await this.ImmunisationTopatient.find({
         patientId: patientId,
       }).populate("immunisationId", "name");
-      this.response({ res, data: immunisationToPatient });
+
+      const transformedData = immunisationToPatient.map((item) => {
+        const {
+          _id,
+         value,
+         immunisationId,
+         patientId,
+          updatedAt,
+          createdAt,
+          __v,
+        } = item;
+      
+        const { _id: typeID, name } = immunisationId;
+  
+        return {
+          _id,        
+          patientId,
+          immunisationId:typeID,
+          value,
+          updatedAt,
+          createdAt,
+          __v,
+        };
+      });
+      this.response({ res, data: transformedData });
     } catch (error) {
       console.log(`getimmunisationIdToPatient${error}`);
       return res
