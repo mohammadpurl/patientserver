@@ -2,11 +2,16 @@ const controller = require("./../controller");
 const _ = require("lodash");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const User = require("./../../modeles/user");
-const GuardianToPatient = require("./../../modeles/guardianTopatient");
-const PractitionerToPatient = require("./../../modeles/practitionerTopatient");
-const Patient = require("./../../modeles/patient");
-const email = require("./../mail");
+
+// const email = require("./../mail");
+const {
+  RandomNumberGenerator,
+  SignAccessToken,
+} = require("../../utills/function");
+const { EXPIRES_IN, USERS_ROLES } = require("../../utills/constans");
+const createHttpError = require("http-errors");
+const { checkOtpSchema } = require("./auth.schema");
+const { sendSMS } = require("../sms/Kavenegar");
 require("dotenv").config();
 // const redis_client = require('./../../../redis_connect');
 
@@ -48,8 +53,9 @@ module.exports = new (class extends controller {
   // *********************check verification code**********************
   async checkVerifyCode(req, res) {
     try {
-      console.log(req.body.email);
-      let user = await this.User.findOne({ email: req.body.email });
+      const { mobile } = req.body;
+      const code = randomNumberGenerator();
+      let user = await this.User.findOne({ mobile: mobile });
       console.log(user);
       if (user) {
         const verifyCode = await email.generateVerificationCode(req.body.email);
@@ -86,48 +92,113 @@ module.exports = new (class extends controller {
       });
     }
   }
-  // *********************login**********************
-  async login(req, res) {
+  // *********************getOtp**********************
+  async getOtp(req, res) {
     try {
-      let user = await this.User.findOne({
-        email: req.body.email,
-        confirmedEmail: true,
+      const { mobile } = req.body;
+      console.log(mobile);
+      const code = RandomNumberGenerator();
+      console.log("codellllllllllllllllllllllllllllllll");
+      const result = await this.saveUser(mobile, code);
+      // if (!result)
+      //   throw createHttpError.BadRequest("مشکلی در ورود ایجاد شده است");
+      const isSend = sendSMS(mobile, code);
+      this.response({
+        res,
+        message: "کد اعتبار سنجی با موفقیت برای شما ارسال شد",
+        data: { code, result },
       });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ status: true, message: "something went wrong", data: error });
+    }
+  }
+  // *********************check otp**********************
+  async checkOtp(req, res, next) {
+    try {
+      // await checkOtpSchema.validateAsync(req.body);
+      console.log("++++++++++++++++++++++++");
+      const { mobile, code } = req.body;
+      console.log(`mobile: ${mobile} code:${code}`);
+      const user = await this.User.findOne({ mobile: mobile });
+      console.log(user?.otp?.code);
       if (!user) {
         console.log("!user");
-        return this.response({
+        this.response({
           res,
-          code: 400,
-          message: "Invalid email or password",
+          message: "کاربر یافت نشد",
+          status: 500,
         });
       }
 
-      const isvalid = await bcrypt.compare(req.body.password, user?.password);
-      console.log(`isvalid ${isvalid}`);
-      if (!isvalid) {
-        return this.response({ res, code: 400, message: "Invalid  password" });
+      if (user?.otp?.code != code) {
+        this.response({
+          res,
+          message: "کد ارسال شده صحیح نمی باشد",
+          status: 500,
+        });
+        throw createHttpError.Unauthorized("کد ارسال شده صحیح نمی باشد");
       }
 
-      const access_token = jwt.sign(
-        { sub: user._id },
-        process.env.JWT_ACCESS_SECRET,
-        { expiresIn: process.env.JWT_ACCESS_TIME }
-      );
+      if (user?.otp?.expiresIn < Date.now()) {
+        this.response({
+          res,
+          message: "کد شما منقضی شده است",
+          status: 500,
+        });
+        throw createHttpError.Unauthorized("کد شما منقضی شده است");
+      }
 
-      const refresh_token = await this.GenerateRefreshToken(user._id);
-      const userRole = await this.getRoles(user);
-      console.log(refresh_token);
-      // console.log(`userRole after login ${JSON.stringify(userRole) }`)
+      const accessToken = await SignAccessToken(user?._id);
       this.response({
         res,
         message: "successfuly loged in",
-        data: { access_token, refresh_token, userRole },
+        data: { accessToken },
       });
     } catch (error) {
-       return res
-      .status(500)
-      .json({ status: true, message: "something went wrong", data: error });
+      // next(error);
+      console.log(error);
     }
+  }
+  // *********************saveUser**********************
+
+  async saveUser(mobile, code) {
+    const result = await this.checkExitUser(mobile);
+    console.log("checkExitUser", result);
+    let otp = {
+      code,
+      expiresIn: EXPIRES_IN,
+    };
+    console.log(otp);
+    if (result) {
+      return await this.updateUser(mobile, { otp });
+    }
+    const user = await this.User.create({
+      mobile: mobile,
+      otp,
+      roles: [USERS_ROLES],
+    });
+    console.log(user);
+    return !!user;
+  }
+  // *********************checkExitUser**********************
+  async checkExitUser(mobile) {
+    const user = await this.User.findOne({ mobile: mobile });
+    return !!user;
+  }
+  // *********************updateUser**********************
+  async updateUser(mobile, objectData = {}) {
+    Object.keys(objectData).forEach((key) => {
+      if (["", " ", 0, null, NaN, undefined, "0"].includes(objectData[key]))
+        delete objectData[key];
+    });
+    const updateResult = await this.User.updateOne(
+      { mobile },
+      { $set: objectData }
+    );
+    return !!updateResult.modifiedCount;
   }
   // *********************login**********************
   async getRoles(user) {
@@ -197,7 +268,7 @@ module.exports = new (class extends controller {
         data: { access_token, refresh_token },
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 
@@ -208,15 +279,15 @@ module.exports = new (class extends controller {
         process.env.JWT_REFRESH_SECRET,
         { expiresIn: process.env.JWT_REFRESH_TIME }
       );
-  
+
       const result = await this.User.findOneAndUpdate(
         { _id: user_id },
         { $set: { lastRefreshToken: refresh_token } }
       );
-  
+
       return refresh_token;
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   }
 

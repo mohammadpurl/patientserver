@@ -1,9 +1,7 @@
 require("dotenv").config();
 
-const User = require("./../modeles/user");
-const GuardianToPatient = require("./../modeles/guardianTopatient");
-const PractitionerToPatient = require("./../modeles/practitionerTopatient");
-const Patient = require("./../modeles/patient");
+const User = require("./../models/user");
+
 const jwt = require("jsonwebtoken");
 
 async function isLoggined(req, res, next) {
@@ -24,13 +22,11 @@ async function isLoggined(req, res, next) {
     req.user = user;
     next();
   } catch (error) {
-    return res
-      .status(401)
-      .json({
-        status: false,
-        message: "Your session is not valid.",
-        data: error,
-      });
+    return res.status(401).json({
+      status: false,
+      message: "Your session is not valid.",
+      data: error,
+    });
   }
 }
 async function getRelatedPatient(req, res, next) {
@@ -61,13 +57,11 @@ async function getRelatedPatient(req, res, next) {
     next();
   } catch (error) {
     console.log(error);
-    return res
-      .status(401)
-      .json({
-        status: false,
-        message: "Your session is not valid.",
-        data: error,
-      });
+    return res.status(401).json({
+      status: false,
+      message: "Your session is not valid.",
+      data: error,
+    });
   }
 }
 
@@ -92,13 +86,11 @@ function verifyToken(req, res, next) {
       next();
     });
   } catch (error) {
-    return res
-      .status(401)
-      .json({
-        status: false,
-        message: "Your session is not valid.",
-        data: error,
-      });
+    return res.status(401).json({
+      status: false,
+      message: "Your session is not valid.",
+      data: error,
+    });
   }
 }
 
@@ -113,28 +105,22 @@ async function verifyRefreshToken(req, res, next) {
 
     const user = await User.findById(decoded.sub);
     if (!user || !user.lastRefreshToken)
-      return res
-        .status(401)
-        .json({
-          status: false,
-          message: "Invalid request. Token is not in store.",
-        });
+      return res.status(401).json({
+        status: false,
+        message: "Invalid request. Token is not in store.",
+      });
 
     if (user.lastRefreshToken != token)
-      return res
-        .status(401)
-        .json({
-          status: false,
-          message: "Invalid request. Token is not same in store.",
-        });
-  } catch (error) {
-    return res
-      .status(401)
-      .json({
-        status: true,
-        message: "Your session is not valid.",
-        data: error,
+      return res.status(401).json({
+        status: false,
+        message: "Invalid request. Token is not same in store.",
       });
+  } catch (error) {
+    return res.status(401).json({
+      status: true,
+      message: "Your session is not valid.",
+      data: error,
+    });
   }
 }
 
